@@ -261,10 +261,10 @@ Free for academic use. Modifications must be shared under the same license.
 ## Citation
 
 ```bibtex
-@software{quantrix2025,
+@software{quantrix2026,
   author = {Quantrix Contributors},
   title = {Quantrix: AI-Native Quantitative Research Platform for Social Sciences},
-  year = {2025},
+  year = {2026},
   version = {0.1.0},
   url = {https://github.com/quantrix/quantrix}
 }
