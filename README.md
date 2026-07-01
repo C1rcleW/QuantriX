@@ -1,4 +1,4 @@
-# Quantrix
+# QuantriX
 
 **AI-Native Quantitative Research Platform for Social Sciences**
 
