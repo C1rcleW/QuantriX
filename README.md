@@ -1,4 +1,4 @@
-# QuantriX
+# QuantriX V0.1（building）
 
 **AI-Native Quantitative Research Platform for Social Sciences**
 
