@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Quantrix
+*.quantrix_cache/
+
+# Frontend
+node_modules/
+frontend/dist/
+
+# Temp scripts
+fix_*.py
+gen_stats.py
+trace*.py
+test_full_flow.py
+test_stats_direct.py
+smoke_test.py
