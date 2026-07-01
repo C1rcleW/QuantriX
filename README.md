@@ -1,4 +1,4 @@
-# Quantrix
+# QuantriX v0.1.0（building），后端 API 完全可用，前端 GUI 需要贡献者帮助测试和修复。
 
 **AI-Native Quantitative Research Platform for Social Sciences**
 
