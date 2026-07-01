@@ -23,6 +23,7 @@ def main() -> None:
 
     if args.command == "dev":
         import uvicorn
+
         uvicorn.run(
             "quantrix.server.app:app",
             host=args.host,

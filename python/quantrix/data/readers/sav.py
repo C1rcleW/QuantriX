@@ -123,6 +123,4 @@ class SpssReader:
             if float(v) not in discrete:
                 discrete.append(float(v))
 
-        return MissingDefinition(
-            discrete=discrete, range_low=range_low, range_high=range_high
-        )
+        return MissingDefinition(discrete=discrete, range_low=range_low, range_high=range_high)

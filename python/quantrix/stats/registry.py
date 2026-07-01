@@ -10,9 +10,9 @@ from __future__ import annotations
 from quantrix.stats.base import BaseStatMethod
 from quantrix.stats.comparison import (
     IndependentTTest,
+    KruskalWallis,
     MannWhitney,
     OneWayANOVA,
-    KruskalWallis,
 )
 from quantrix.stats.correlation import ChiSquare, PearsonCorrelation, SpearmanCorrelation
 from quantrix.stats.descriptive import Descriptives, Frequencies
@@ -44,9 +44,7 @@ def _register_all():
         _registry[m.method_name] = m
 
 
-def execute_analysis(
-    method_name: str, dataset, dv, ivs, **params
-) -> dict:
+def execute_analysis(method_name: str, dataset, dv, ivs, **params) -> dict:
     """Execute a statistical analysis and return results as dict.
 
     Args:

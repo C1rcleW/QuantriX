@@ -27,12 +27,12 @@ def export_python(dag: AnalysisDAG, dataset_name: str = "data") -> str:
         "import statsmodels.api as sm",
         "import statsmodels.formula.api as smf",
         "",
-        f"# ── Load data ──",
-        f"# Replace this with your actual data loading code",
+        "# ── Load data ──",
+        "# Replace this with your actual data loading code",
         f"# df = pl.read_csv('{dataset_name}.csv')",
         f"# df = pl.read_sav('{dataset_name}.sav')  # with pyreadstat",
         "",
-        f"print(f'Loaded {{df.height}} rows × {{df.width}} columns')",
+        "print(f'Loaded {df.height} rows × {df.width} columns')",
         "",
     ]
 
@@ -69,49 +69,53 @@ def _export_analysis_node(node) -> list[str]:
         lines.append(f"group_values = df['{iv}'].unique().to_list()")
         lines.append(f"g1 = df.filter(pl.col('{iv}') == group_values[0])['{dv}'].drop_nulls()")
         lines.append(f"g2 = df.filter(pl.col('{iv}') == group_values[1])['{dv}'].drop_nulls()")
-        lines.append(f"t_stat, p_value = stats.ttest_ind(g1.to_numpy(), g2.to_numpy())")
+        lines.append("t_stat, p_value = stats.ttest_ind(g1.to_numpy(), g2.to_numpy())")
         lines.append(f"print(f'{dv} by {iv}: t = {{t_stat:.3f}}, p = {{p_value:.4f}}')")
-        lines.append(f"print(f'  Group 1 (n={{len(g1)}}): M={{g1.mean():.2f}}, SD={{g1.std():.2f}}')")
-        lines.append(f"print(f'  Group 2 (n={{len(g2)}}): M={{g2.mean():.2f}}, SD={{g2.std():.2f}}')")
+        lines.append("print(f'  Group 1 (n={len(g1)}): M={g1.mean():.2f}, SD={g1.std():.2f}')")
+        lines.append("print(f'  Group 2 (n={len(g2)}): M={g2.mean():.2f}, SD={g2.std():.2f}')")
 
     elif method == "oneway_anova":
         lines.append(f"# One-way ANOVA: {dv} by {iv}")
         lines.append(f"groups = df.group_by('{iv}').agg([pl.col('{dv}').to_list()])")
-        lines.append(f"group_data = [g[0] for g in groups.rows()]")
-        lines.append(f"f_stat, p_value = stats.f_oneway(*group_data)")
+        lines.append("group_data = [g[0] for g in groups.rows()]")
+        lines.append("f_stat, p_value = stats.f_oneway(*group_data)")
         lines.append(f"print(f'{dv} by {iv}: F = {{f_stat:.3f}}, p = {{p_value:.4f}}')")
 
     elif method == "pearson_correlation":
         lines.append(f"# Pearson correlation: {dv} × {iv}")
         lines.append(f"x = df['{dv}'].drop_nulls().to_numpy()")
         lines.append(f"y = df.filter(pl.col('{dv}').is_not_null())['{iv}'].drop_nulls().to_numpy()")
-        lines.append(f"r, p_value = stats.pearsonr(x, y)")
+        lines.append("r, p_value = stats.pearsonr(x, y)")
         lines.append(f"print(f'{dv} × {iv}: r = {{r:.3f}}, p = {{p_value:.4f}}')")
 
     elif method == "chi_square":
         lines.append(f"# Chi-square test: {dv} × {iv}")
-        lines.append(f"crosstab = df.group_by(['{iv}', '{dv}']).len().pivot(values='len', index='{iv}', columns='{dv}').fill_null(0)")
-        lines.append(f"chi2, p_value, dof, expected = stats.chi2_contingency(crosstab.to_numpy())")
+        lines.append(
+            f"crosstab = df.group_by(['{iv}', '{dv}']).len().pivot(values='len', index='{iv}', columns='{dv}').fill_null(0)"
+        )
+        lines.append("chi2, p_value, dof, expected = stats.chi2_contingency(crosstab.to_numpy())")
         lines.append(f"print(f'{dv} × {iv}: χ² = {{chi2:.3f}}, df = {{dof}}, p = {{p_value:.4f}}')")
 
     elif method == "linear_regression":
         lines.append(f"# Linear regression: {dv} ~ {' + '.join(params.get('ivs', [iv]))}")
         lines.append(f"X = df.select(['{iv}']).to_numpy()")
-        lines.append(f"X = sm.add_constant(X)")
+        lines.append("X = sm.add_constant(X)")
         lines.append(f"y = df['{dv}'].to_numpy()")
-        lines.append(f"model = sm.OLS(y, X).fit()")
-        lines.append(f"print(model.summary())")
+        lines.append("model = sm.OLS(y, X).fit()")
+        lines.append("print(model.summary())")
 
     elif method in ("descriptive_statistics", "descriptives"):
         lines.append(f"# Descriptive statistics for {dv}")
         lines.append(f"col = df['{dv}'].drop_nulls()")
-        lines.append(f"print(f'{dv}: n={{len(col)}}, M={{col.mean():.2f}}, SD={{col.std():.2f}}, "
-                     f"min={{col.min()}}, max={{col.max()}}')")
+        lines.append(
+            f"print(f'{dv}: n={{len(col)}}, M={{col.mean():.2f}}, SD={{col.std():.2f}}, "
+            f"min={{col.min()}}, max={{col.max()}}')"
+        )
 
     elif method == "frequency_analysis":
         lines.append(f"# Frequency analysis for {dv}")
         lines.append(f"freq = df['{dv}'].value_counts().sort('count', descending=True)")
-        lines.append(f"print(freq)")
+        lines.append("print(freq)")
 
     else:
         lines.append(f"# {method} analysis")

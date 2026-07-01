@@ -38,18 +38,14 @@ class MissingDetector:
             if var.name in df.columns:
                 col = df[var.name]
                 var.missing_count = col.null_count()
-                var.missing_percentage = (
-                    var.missing_count / len(col) * 100 if len(col) > 0 else 0.0
-                )
+                var.missing_percentage = var.missing_count / len(col) * 100 if len(col) > 0 else 0.0
                 var.n_valid = len(col) - var.missing_count
 
         # Classify overall missing pattern
         self._classify_pattern(variables, df)
 
     @staticmethod
-    def _classify_pattern(
-        variables: list[VariableMetadata], df: pl.DataFrame
-    ) -> None:
+    def _classify_pattern(variables: list[VariableMetadata], df: pl.DataFrame) -> None:
         """Heuristic missing pattern classification.
 
         MCAR: < 5% missing overall, and missing values appear random

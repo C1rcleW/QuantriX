@@ -12,7 +12,9 @@ from quantrix.safety.engine import SafetyRule, SafetyWarning
 
 # Methods that require normality of the dependent variable
 _NORMALITY_METHODS: set[str] = {
-    "independent_ttest", "oneway_anova", "pearson_correlation",
+    "independent_ttest",
+    "oneway_anova",
+    "pearson_correlation",
     "linear_regression",
 }
 
@@ -47,43 +49,44 @@ class NormalityRule(SafetyRule):
         mean = col.mean()
         std = col.std()
         if std and std > 0:
-            skewness = ((col - mean) ** 3).mean() / (std ** 3)
+            skewness = ((col - mean) ** 3).mean() / (std**3)
         else:
             return warnings
 
         # Calculate excess kurtosis
-        kurtosis = ((col - mean) ** 4).mean() / (std ** 4) - 3
+        kurtosis = ((col - mean) ** 4).mean() / (std**4) - 3
 
         var_names = [dv.name]
 
         if abs(skewness) > _SKEWNESS_THRESHOLD:
             direction = "positively" if skewness > 0 else "negatively"
-            warnings.append(SafetyWarning(
-                rule_name=self.rule_name,
-                severity="warning",
-                message=(
-                    f"'{dv.name}' is {direction} skewed "
-                    f"(skewness={skewness:.2f}, threshold={_SKEWNESS_THRESHOLD})."
-                ),
-                suggestion=(
-                    "Consider a log/square-root transformation, "
-                    "or use a nonparametric alternative (e.g., Mann-Whitney, "
-                    "Spearman correlation, or robust regression)."
-                ),
-                variable_names=var_names,
-            ))
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="warning",
+                    message=(
+                        f"'{dv.name}' is {direction} skewed "
+                        f"(skewness={skewness:.2f}, threshold={_SKEWNESS_THRESHOLD})."
+                    ),
+                    suggestion=(
+                        "Consider a log/square-root transformation, "
+                        "or use a nonparametric alternative (e.g., Mann-Whitney, "
+                        "Spearman correlation, or robust regression)."
+                    ),
+                    variable_names=var_names,
+                )
+            )
 
         if abs(kurtosis) > _KURTOSIS_THRESHOLD:
-            warnings.append(SafetyWarning(
-                rule_name=self.rule_name,
-                severity="warning",
-                message=(
-                    f"'{dv.name}' has high kurtosis "
-                    f"(excess kurtosis={kurtosis:.2f})."
-                ),
-                suggestion="Heavy tails may inflate Type I error. Consider robust methods.",
-                variable_names=var_names,
-            ))
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="warning",
+                    message=(f"'{dv.name}' has high kurtosis (excess kurtosis={kurtosis:.2f})."),
+                    suggestion="Heavy tails may inflate Type I error. Consider robust methods.",
+                    variable_names=var_names,
+                )
+            )
 
         # Update variable metadata with computed values
         dv.skewness = round(float(skewness), 3)

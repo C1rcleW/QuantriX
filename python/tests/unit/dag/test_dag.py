@@ -65,13 +65,16 @@ class TestTracker:
     def test_track_import_and_analysis(self):
         reset_tracker()
         from quantrix.dag.tracker import get_tracker
+
         tracker = get_tracker()
 
         import_id = tracker.record_import(
-            type("DS", (), {"name": "test", "n_rows": 100, "n_columns": 5, "source_format": "csv"})(),
+            type(
+                "DS", (), {"name": "test", "n_rows": 100, "n_columns": 5, "source_format": "csv"}
+            )(),
             "test.csv",
         )
-        analysis_id = tracker.record_analysis(
+        tracker.record_analysis(
             "independent_ttest",
             {"dv": "income", "iv": "gender"},
             depends_on=import_id,
@@ -91,10 +94,14 @@ class TestPythonExporter:
         tracker = OperationTracker()
         tracker.dag = dag  # hack to use the tracker with our dag
         import_id = tracker.record_import(
-            type("DS", (), {"name": "test", "n_rows": 100, "n_columns": 3, "source_format": "csv"})(),
+            type(
+                "DS", (), {"name": "test", "n_rows": 100, "n_columns": 3, "source_format": "csv"}
+            )(),
             "test.csv",
         )
-        tracker.record_analysis("independent_ttest", {"dv": "income", "iv": "gender"}, depends_on=import_id)
+        tracker.record_analysis(
+            "independent_ttest", {"dv": "income", "iv": "gender"}, depends_on=import_id
+        )
         return dag
 
     def test_python_export_contains_scipy(self, dag):
@@ -116,7 +123,9 @@ class TestDAGAPI:
     @pytest.fixture
     def client(self):
         from fastapi.testclient import TestClient
+
         from quantrix.server.app import app
+
         return TestClient(app)
 
     def test_get_dag(self, client):

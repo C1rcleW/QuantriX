@@ -23,12 +23,15 @@ def dataset_id(client):
 
 class TestSafetyCheck:
     def test_valid_method_passes(self, client, dataset_id):
-        r = client.post("/api/safety/check", json={
-            "dataset_id": dataset_id,
-            "method_name": "independent_ttest",
-            "dependent": "income",
-            "independents": ["gender"],
-        })
+        r = client.post(
+            "/api/safety/check",
+            json={
+                "dataset_id": dataset_id,
+                "method_name": "independent_ttest",
+                "dependent": "income",
+                "independents": ["gender"],
+            },
+        )
         assert r.status_code == 200
         data = r.json()
         assert data["method_name"] == "independent_ttest"
@@ -38,28 +41,37 @@ class TestSafetyCheck:
 
     def test_type_mismatch_errors(self, client, dataset_id):
         """Nominal DV with t-test should error."""
-        r = client.post("/api/safety/check", json={
-            "dataset_id": dataset_id,
-            "method_name": "independent_ttest",
-            "dependent": "gender",  # nominal!
-            "independents": ["income"],
-        })
+        r = client.post(
+            "/api/safety/check",
+            json={
+                "dataset_id": dataset_id,
+                "method_name": "independent_ttest",
+                "dependent": "gender",  # nominal!
+                "independents": ["income"],
+            },
+        )
         data = r.json()
         assert data["has_errors"] is True
 
     def test_wrong_dataset(self, client):
-        r = client.post("/api/safety/check", json={
-            "dataset_id": "999",
-            "method_name": "ttest",
-        })
+        r = client.post(
+            "/api/safety/check",
+            json={
+                "dataset_id": "999",
+                "method_name": "ttest",
+            },
+        )
         assert r.status_code == 404
 
     def test_info_and_warning_fields(self, client, dataset_id):
-        r = client.post("/api/safety/check", json={
-            "dataset_id": dataset_id,
-            "method_name": "descriptives",
-            "dependent": "income",
-            "independents": [],
-        })
+        r = client.post(
+            "/api/safety/check",
+            json={
+                "dataset_id": dataset_id,
+                "method_name": "descriptives",
+                "dependent": "income",
+                "independents": [],
+            },
+        )
         data = r.json()
         assert "info" in data

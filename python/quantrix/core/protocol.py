@@ -64,9 +64,7 @@ class StatMethodProtocol(Protocol):
     required_variable_types: dict[str, list[str]]
     # e.g., {"dependent": ["continuous"], "independent": ["nominal", "ordinal"]}
 
-    def can_handle(
-        self, variables: list[VariableMetadata], research_question_type: str
-    ) -> bool:
+    def can_handle(self, variables: list[VariableMetadata], research_question_type: str) -> bool:
         """Whether this method is appropriate for the given variables and question."""
         ...
 

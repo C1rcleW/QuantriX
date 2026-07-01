@@ -12,8 +12,10 @@ from quantrix.safety.engine import SafetyRule, SafetyWarning
 
 # Methods where multiple comparisons are a concern
 _MULTI_COMPARE_METHODS: set[str] = {
-    "oneway_anova", "kruskal_wallis",
-    "linear_regression", "multinomial_logistic",
+    "oneway_anova",
+    "kruskal_wallis",
+    "linear_regression",
+    "multinomial_logistic",
 }
 
 # Methods that produce group comparison results
@@ -37,44 +39,50 @@ class MultipleComparisonRule(SafetyRule):
 
         # Multiple independent variables in regression → remind
         if method_name == "linear_regression" and len(ivs) > 1:
-            warnings.append(SafetyWarning(
-                rule_name=self.rule_name,
-                severity="info",
-                message=(
-                    f"Testing {len(ivs)} predictors simultaneously. "
-                    "Each coefficient test carries its own Type I error risk."
-                ),
-                suggestion="Consider reporting adjusted R² instead of individual p-values, or use a hierarchical entry method.",
-                variable_names=[iv.name for iv in ivs],
-            ))
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="info",
+                    message=(
+                        f"Testing {len(ivs)} predictors simultaneously. "
+                        "Each coefficient test carries its own Type I error risk."
+                    ),
+                    suggestion="Consider reporting adjusted R² instead of individual p-values, or use a hierarchical entry method.",
+                    variable_names=[iv.name for iv in ivs],
+                )
+            )
 
         # Multi-group test → suggest post-hoc
         if method_name in ("oneway_anova", "kruskal_wallis"):
             if ivs and ivs[0].n_unique and ivs[0].n_unique > 2:
-                warnings.append(SafetyWarning(
-                    rule_name=self.rule_name,
-                    severity="info",
-                    message=(
-                        f"With {ivs[0].n_unique} groups, pairwise comparisons "
-                        "require correction for multiple testing."
-                    ),
-                    suggestion=(
-                        "Use Tukey's HSD (ANOVA) or Dunn's test (Kruskal-Wallis) "
-                        "with Bonferroni correction for post-hoc comparisons."
-                    ),
-                    variable_names=[ivs[0].name],
-                ))
+                warnings.append(
+                    SafetyWarning(
+                        rule_name=self.rule_name,
+                        severity="info",
+                        message=(
+                            f"With {ivs[0].n_unique} groups, pairwise comparisons "
+                            "require correction for multiple testing."
+                        ),
+                        suggestion=(
+                            "Use Tukey's HSD (ANOVA) or Dunn's test (Kruskal-Wallis) "
+                            "with Bonferroni correction for post-hoc comparisons."
+                        ),
+                        variable_names=[ivs[0].name],
+                    )
+                )
 
         # Multiple IVs in crosstab → remind
         if method_name == "crosstab" and len(ivs) > 1:
-            warnings.append(SafetyWarning(
-                rule_name=self.rule_name,
-                severity="info",
-                message=(
-                    f"Testing associations with {len(ivs)} variables "
-                    "inflates familywise error rate."
-                ),
-                suggestion="Apply Bonferroni correction: divide α by number of tests.",
-            ))
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="info",
+                    message=(
+                        f"Testing associations with {len(ivs)} variables "
+                        "inflates familywise error rate."
+                    ),
+                    suggestion="Apply Bonferroni correction: divide α by number of tests.",
+                )
+            )
 
         return warnings

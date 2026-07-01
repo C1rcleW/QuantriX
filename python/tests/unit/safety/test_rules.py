@@ -17,8 +17,11 @@ from quantrix.safety.rules.type_match import TypeMatchRule
 def make_dataset(variables: list[VariableMetadata], data: dict) -> Dataset:
     df = pl.DataFrame(data)
     return Dataset(
-        name="test", n_rows=df.height, n_columns=df.width,
-        variables=variables, data=df,
+        name="test",
+        n_rows=df.height,
+        n_columns=df.width,
+        variables=variables,
+        data=df,
     )
 
 
@@ -75,7 +78,7 @@ class TestNormalityRule:
         rule = NormalityRule()
         dv = make_var("x", VariableType.CONTINUOUS)
         ds = make_dataset([dv], {"x": [1.0, 2.0, 3.0, 2.0, 1.0, 2.0, 3.0, 2.0]})
-        warnings = rule.check("independent_ttest", dv, [], ds)
+        rule.check("independent_ttest", dv, [], ds)
         # Uniform-ish small data, should have low skewness
         assert dv.skewness is not None
 
@@ -83,7 +86,7 @@ class TestNormalityRule:
         rule = NormalityRule()
         dv = make_var("x", VariableType.CONTINUOUS)
         # Very extreme: 19 ones and one 1000 → skewness > 2
-        ds = make_dataset([dv], {"x": [1]*19 + [1000]})
+        ds = make_dataset([dv], {"x": [1] * 19 + [1000]})
         warnings = rule.check("independent_ttest", dv, [], ds)
         assert len(warnings) >= 1
 
@@ -93,10 +96,13 @@ class TestHomogeneityRule:
         rule = HomogeneityRule()
         dv = make_var("x", VariableType.CONTINUOUS)
         iv = make_var("g", VariableType.NOMINAL)
-        ds = make_dataset([dv, iv], {
-            "x": [1.0, 2.0, 3.0, 2.0, 3.0, 4.0],
-            "g": [0, 0, 0, 1, 1, 1],
-        })
+        ds = make_dataset(
+            [dv, iv],
+            {
+                "x": [1.0, 2.0, 3.0, 2.0, 3.0, 4.0],
+                "g": [0, 0, 0, 1, 1, 1],
+            },
+        )
         warnings = rule.check("independent_ttest", dv, [iv], ds)
         # Similar SDs → no warning
         severity_errors = [w for w in warnings if w.severity == "error"]
@@ -107,19 +113,24 @@ class TestHomogeneityRule:
         dv = make_var("x", VariableType.CONTINUOUS)
         iv = make_var("g", VariableType.NOMINAL)
         # Group 0: all 1.0 (sd=0), Group 1: extreme spread → SD ratio > 2
-        ds = make_dataset([dv, iv], {
-            "x": [1]*10 + [1, 10, 100, 200, 500],
-            "g": [0]*10 + [1]*5,
-        })
+        ds = make_dataset(
+            [dv, iv],
+            {
+                "x": [1] * 10 + [1, 10, 100, 200, 500],
+                "g": [0] * 10 + [1] * 5,
+            },
+        )
         warnings = rule.check("independent_ttest", dv, [iv], ds)
-        assert any("vary" in w.message.lower() or "zero variance" in w.message.lower() for w in warnings)
+        assert any(
+            "vary" in w.message.lower() or "zero variance" in w.message.lower() for w in warnings
+        )
 
 
 class TestOutlierRule:
     def test_no_outliers(self):
         rule = OutlierRule()
         dv = make_var("x", VariableType.CONTINUOUS)
-        ds = make_dataset([dv], {"x": [5.0]*20})
+        ds = make_dataset([dv], {"x": [5.0] * 20})
         _ = rule.check("independent_ttest", dv, [], ds)
         assert dv.outlier_count == 0
 
@@ -127,7 +138,7 @@ class TestOutlierRule:
         rule = OutlierRule()
         dv = make_var("x", VariableType.CONTINUOUS)
         # 19 ones + 1000 creates IQR=0, then all non-1 values are outliers
-        ds = make_dataset([dv], {"x": [1]*19 + [1000]})
+        ds = make_dataset([dv], {"x": [1] * 19 + [1000]})
         _ = rule.check("independent_ttest", dv, [], ds)
         assert dv.outlier_count > 0
 

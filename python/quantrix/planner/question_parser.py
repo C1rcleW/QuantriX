@@ -3,29 +3,82 @@
 from __future__ import annotations
 
 _DESCRIPTIVE_KEYWORDS: list[str] = [
-    "describe", "description", "descriptive", "distribution", "summary",
-    "what is", "how many", "frequency", "overview", "profile", "mean",
-    "average", "现状", "描述", "分布", "概述",
+    "describe",
+    "description",
+    "descriptive",
+    "distribution",
+    "summary",
+    "what is",
+    "how many",
+    "frequency",
+    "overview",
+    "profile",
+    "mean",
+    "average",
+    "现状",
+    "描述",
+    "分布",
+    "概述",
 ]
 
 _DIFFERENCE_KEYWORDS: list[str] = [
-    "difference", "differ", "compare", "comparison", "between", "among",
-    "vs", "versus", "significant", "test", "group", "higher", "lower",
-    "more than", "less than", "contrast", "gap", "差异", "比较", "对比",
+    "difference",
+    "differ",
+    "compare",
+    "comparison",
+    "between",
+    "among",
+    "vs",
+    "versus",
+    "significant",
+    "test",
+    "group",
+    "higher",
+    "lower",
+    "more than",
+    "less than",
+    "contrast",
+    "gap",
+    "差异",
+    "比较",
+    "对比",
 ]
 
 _ASSOCIATION_KEYWORDS: list[str] = [
-    "association", "associated", "correlation", "correlate", "relationship",
-    "related", "link", "connection", "相关", "关联",
+    "association",
+    "associated",
+    "correlation",
+    "correlate",
+    "relationship",
+    "related",
+    "link",
+    "connection",
+    "相关",
+    "关联",
 ]
 
 _PREDICTION_KEYWORDS: list[str] = [
-    "predict", "prediction", "effect", "affect", "impact", "influence",
-    "determine", "factor", "explain", "cause", "outcome", "determinant", "预测", "影响",
+    "predict",
+    "prediction",
+    "effect",
+    "affect",
+    "impact",
+    "influence",
+    "determine",
+    "factor",
+    "explain",
+    "cause",
+    "outcome",
+    "determinant",
+    "预测",
+    "影响",
 ]
 
 _CAUSAL_KEYWORDS: list[str] = [
-    "causal", "cause", "causality", "treatment effect",
+    "causal",
+    "cause",
+    "causality",
+    "treatment effect",
 ]
 
 
@@ -55,8 +108,16 @@ def extract_variable_roles(text: str, variable_names: list[str]) -> dict:
     iv_from_by = [v for v in mentioned if ("by " + v.lower()) in text_lower]
 
     # DV keywords
-    dv_kw = ["affect", "impact", "influence", "predict", "explain",
-             "effect on", "outcome", "dependent"]
+    dv_kw = [
+        "affect",
+        "impact",
+        "influence",
+        "predict",
+        "explain",
+        "effect on",
+        "outcome",
+        "dependent",
+    ]
 
     for v in mentioned:
         for kw in dv_kw:

@@ -39,9 +39,9 @@ class SafetyReport:
     """Aggregated safety check results."""
 
     method_name: str
-    passed: list[SafetyWarning] = field(default_factory=list)   # severity = info
-    warnings: list[SafetyWarning] = field(default_factory=list) # severity = warning
-    errors: list[SafetyWarning] = field(default_factory=list)   # severity = error
+    passed: list[SafetyWarning] = field(default_factory=list)  # severity = info
+    warnings: list[SafetyWarning] = field(default_factory=list)  # severity = warning
+    errors: list[SafetyWarning] = field(default_factory=list)  # severity = error
 
     @property
     def has_errors(self) -> bool:
@@ -62,20 +62,27 @@ class SafetyReport:
             "has_errors": self.has_errors,
             "has_warnings": self.has_warnings,
             "errors": [
-                {"rule": w.rule_name, "severity": w.severity,
-                 "message": w.message, "suggestion": w.suggestion,
-                 "variables": w.variable_names}
+                {
+                    "rule": w.rule_name,
+                    "severity": w.severity,
+                    "message": w.message,
+                    "suggestion": w.suggestion,
+                    "variables": w.variable_names,
+                }
                 for w in self.errors
             ],
             "warnings": [
-                {"rule": w.rule_name, "severity": w.severity,
-                 "message": w.message, "suggestion": w.suggestion,
-                 "variables": w.variable_names}
+                {
+                    "rule": w.rule_name,
+                    "severity": w.severity,
+                    "message": w.message,
+                    "suggestion": w.suggestion,
+                    "variables": w.variable_names,
+                }
                 for w in self.warnings
             ],
             "info": [
-                {"rule": w.rule_name, "severity": w.severity,
-                 "message": w.message}
+                {"rule": w.rule_name, "severity": w.severity, "message": w.message}
                 for w in self.passed
             ],
         }
@@ -130,11 +137,13 @@ class SafetyNet:
                     else:
                         report.passed.append(w)
             except Exception as e:
-                report.errors.append(SafetyWarning(
-                    rule_name=rule.rule_name,
-                    severity="error",
-                    message=f"Rule execution failed: {e}",
-                ))
+                report.errors.append(
+                    SafetyWarning(
+                        rule_name=rule.rule_name,
+                        severity="error",
+                        message=f"Rule execution failed: {e}",
+                    )
+                )
 
         return report
 

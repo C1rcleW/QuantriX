@@ -65,9 +65,7 @@ async def import_file(
     try:
         dataset = reader.read(str(tmp_path))
     except Exception as e:
-        raise HTTPException(
-            status_code=422, detail=f"Failed to parse {file.filename}: {e}"
-        ) from e
+        raise HTTPException(status_code=422, detail=f"Failed to parse {file.filename}: {e}") from e
     finally:
         tmp_path.unlink(missing_ok=True)
 
@@ -140,8 +138,7 @@ def get_variables(dataset_id: str) -> dict:
                 "is_categorical": v.is_categorical,
                 "is_continuous": v.is_continuous,
                 "value_labels": [
-                    {"value": vl.value, "label": vl.label}
-                    for vl in v.value_labels[:20]
+                    {"value": vl.value, "label": vl.label} for vl in v.value_labels[:20]
                 ],
                 "has_more_labels": len(v.value_labels) > 20,
                 "stats": (
@@ -151,7 +148,8 @@ def get_variables(dataset_id: str) -> dict:
                         "mean": v.mean,
                         "std_dev": v.std_dev,
                     }
-                    if v.is_continuous else None
+                    if v.is_continuous
+                    else None
                 ),
             }
             for v in ds.variables

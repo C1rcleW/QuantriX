@@ -3,7 +3,6 @@
 import pytest
 
 from quantrix.report.generator import (
-    Report,
     ReportGenerator,
     ReportSection,
     section_from_interpretation,
@@ -35,7 +34,12 @@ class TestReportGenerator:
         ]
         report = generator.create_report(
             "Income Analysis",
-            dataset_info={"name": "CGSS2021", "n_rows": 1247, "n_columns": 5, "source_format": "sav"},
+            dataset_info={
+                "name": "CGSS2021",
+                "n_rows": 1247,
+                "n_columns": 5,
+                "source_format": "sav",
+            },
             sections=sections,
         )
         md = generator.render_markdown(report)
@@ -51,14 +55,16 @@ class TestReportGenerator:
         section = ReportSection(
             heading="Group Descriptives",
             interpretation="",
-            tables=[{
-                "title": "Table 1. Group Means",
-                "columns": ["Group", "N", "Mean", "SD"],
-                "rows": [
-                    ["Male", 600, 49200, 12000],
-                    ["Female", 647, 41000, 10500],
-                ],
-            }],
+            tables=[
+                {
+                    "title": "Table 1. Group Means",
+                    "columns": ["Group", "N", "Mean", "SD"],
+                    "rows": [
+                        ["Male", 600, 49200, 12000],
+                        ["Female", 647, 41000, 10500],
+                    ],
+                }
+            ],
         )
         report = generator.create_report("Test", sections=[section])
         md = generator.render_markdown(report)
@@ -93,21 +99,26 @@ class TestReportAPI:
     @pytest.fixture
     def client(self):
         from fastapi.testclient import TestClient
+
         from quantrix.server.app import app
+
         return TestClient(app)
 
     def test_generate_report(self, client):
-        r = client.post("/api/report/generate", json={
-            "title": "API Test Report",
-            "format": "apa",
-            "sections": [
-                {
-                    "heading": "Descriptive Statistics",
-                    "interpretation": "The sample contained 100 participants.",
-                }
-            ],
-            "dataset_info": {"name": "test.csv", "n_rows": 100, "n_columns": 5},
-        })
+        r = client.post(
+            "/api/report/generate",
+            json={
+                "title": "API Test Report",
+                "format": "apa",
+                "sections": [
+                    {
+                        "heading": "Descriptive Statistics",
+                        "interpretation": "The sample contained 100 participants.",
+                    }
+                ],
+                "dataset_info": {"name": "test.csv", "n_rows": 100, "n_columns": 5},
+            },
+        )
         assert r.status_code == 200
         data = r.json()
         assert data["title"] == "API Test Report"
@@ -117,14 +128,17 @@ class TestReportAPI:
         assert data["section_count"] == 1
 
     def test_multiple_sections(self, client):
-        r = client.post("/api/report/generate", json={
-            "title": "Multi-Section",
-            "sections": [
-                {"heading": "A", "interpretation": "Result A."},
-                {"heading": "B", "interpretation": "Result B."},
-                {"heading": "C", "interpretation": "Result C."},
-                {"heading": "D", "interpretation": "Result D."},
-            ],
-        })
+        r = client.post(
+            "/api/report/generate",
+            json={
+                "title": "Multi-Section",
+                "sections": [
+                    {"heading": "A", "interpretation": "Result A."},
+                    {"heading": "B", "interpretation": "Result B."},
+                    {"heading": "C", "interpretation": "Result C."},
+                    {"heading": "D", "interpretation": "Result D."},
+                ],
+            },
+        )
         assert r.status_code == 200
         assert r.json()["section_count"] == 4

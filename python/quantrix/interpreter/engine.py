@@ -15,8 +15,8 @@ class InterpretationResult:
     """Structured interpretation output."""
 
     method_name: str
-    summary: str               # One-sentence summary
-    detailed: str              # Full markdown interpretation
+    summary: str  # One-sentence summary
+    detailed: str  # Full markdown interpretation
     key_findings: list[str] = field(default_factory=list)
     limitations: list[str] = field(default_factory=list)
 
@@ -62,9 +62,23 @@ class ResultInterpreter:
             try:
                 # Fill defaults for optional template fields
                 defaults = dict.fromkeys(
-                    ["cell_note", "group_table", "posthoc_note", "skewness_text",
-                     "note", "missing_pct", "coefficient_table", "effect_size_text",
-                     "sig_text", "group_labels", "n_groups", "n", "n_valid"], "")
+                    [
+                        "cell_note",
+                        "group_table",
+                        "posthoc_note",
+                        "skewness_text",
+                        "note",
+                        "missing_pct",
+                        "coefficient_table",
+                        "effect_size_text",
+                        "sig_text",
+                        "group_labels",
+                        "n_groups",
+                        "n",
+                        "n_valid",
+                    ],
+                    "",
+                )
                 defaults["means"] = []
                 defaults["sds"] = []
                 defaults["ns"] = []
@@ -96,7 +110,6 @@ class ResultInterpreter:
     def _build_summary(self, method_name: str, stats: dict) -> str:
         """Build a one-sentence summary."""
         from quantrix.interpreter.template_registry import (
-            format_value,
             interpret_cohens_d,
             interpret_correlation_strength,
             interpret_p_value,
@@ -141,15 +154,13 @@ class ResultInterpreter:
             if r2 is not None:
                 return (
                     f"The model predicting {dv} was {sig_text}, "
-                    f"explaining {float(r2)*100:.1f}% of the variance."
+                    f"explaining {float(r2) * 100:.1f}% of the variance."
                 )
             return f"Regression model for {dv} was {sig_text}."
 
         elif method_name == "chi_square":
             sig_text = interpret_p_value(float(p)) if p is not None else ""
-            return (
-                f"The association between {dv} and {iv} was {sig_text}."
-            )
+            return f"The association between {dv} and {iv} was {sig_text}."
 
         elif method_name in ("descriptive_statistics", "descriptives"):
             mean = stats.get("mean")
@@ -179,13 +190,13 @@ class ResultInterpreter:
         d = stats.get("cohens_d")
         if d is not None:
             from quantrix.interpreter.template_registry import interpret_cohens_d
+
             findings.append(
-                f"Effect size: {interpret_cohens_d(float(d))} "
-                f"(Cohen's d = {float(d):.2f})"
+                f"Effect size: {interpret_cohens_d(float(d))} (Cohen's d = {float(d):.2f})"
             )
 
         r2 = stats.get("r_squared")
         if r2 is not None:
-            findings.append(f"Model explains {float(r2)*100:.1f}% of variance")
+            findings.append(f"Model explains {float(r2) * 100:.1f}% of variance")
 
         return findings

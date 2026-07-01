@@ -6,9 +6,8 @@ data dependencies. When upstream changes, downstream becomes stale.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Optional
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -39,7 +38,7 @@ class ProvenanceNode(BaseModel):
     method: str = ""
     parameters: dict[str, object] = Field(default_factory=dict)
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     input_hash: str = ""
     output_hash: str = ""
     description: str = ""
@@ -94,7 +93,7 @@ class AnalysisDAG:
 
     def topological_order(self) -> list[ProvenanceNode]:
         """Return nodes in topological order (imports first)."""
-        in_degree: dict[UUID, int] = {nid: 0 for nid in self.nodes}
+        in_degree: dict[UUID, int] = dict.fromkeys(self.nodes, 0)
         for edge in self.edges:
             in_degree[edge.target_id] = in_degree.get(edge.target_id, 0) + 1
 

@@ -37,13 +37,15 @@ def create_simple_sav(path: Path) -> Path:
     city = [city_opts[i % 5] for i in range(n)]
     age = rng.normal(35, 10, n).clip(18, 70).round(0)
 
-    df = pl.DataFrame({
-        "income": income,
-        "education_level": education,
-        "gender": gender,
-        "city": city,
-        "age": age,
-    })
+    df = pl.DataFrame(
+        {
+            "income": income,
+            "education_level": education,
+            "gender": gender,
+            "city": city,
+            "age": age,
+        }
+    )
 
     # Write SAV with metadata
     pyreadstat.write_sav(
@@ -85,15 +87,77 @@ def create_simple_sav(path: Path) -> Path:
 
 def create_csv_file(path: Path) -> Path:
     """Create a CSV file for testing CSV reader."""
-    df = pl.DataFrame({
-        "id": range(1, 21),
-        "score": [85.5, 92.0, 78.3, None, 88.1, 95.2, 73.4, 81.0, None, 90.5,
-                  76.8, 83.2, 94.1, 67.9, 88.7, 91.3, 79.5, 86.0, 93.8, 82.4],
-        "group": ["A", "A", "B", "B", "A", "A", "B", "B", "A", "B",
-                   "A", "B", "A", "B", "A", "A", "B", "B", "A", "B"],
-        "passed": [True, True, False, False, True, True, False, True, False, True,
-                   True, True, True, False, True, True, False, True, True, True],
-    })
+    df = pl.DataFrame(
+        {
+            "id": range(1, 21),
+            "score": [
+                85.5,
+                92.0,
+                78.3,
+                None,
+                88.1,
+                95.2,
+                73.4,
+                81.0,
+                None,
+                90.5,
+                76.8,
+                83.2,
+                94.1,
+                67.9,
+                88.7,
+                91.3,
+                79.5,
+                86.0,
+                93.8,
+                82.4,
+            ],
+            "group": [
+                "A",
+                "A",
+                "B",
+                "B",
+                "A",
+                "A",
+                "B",
+                "B",
+                "A",
+                "B",
+                "A",
+                "B",
+                "A",
+                "B",
+                "A",
+                "A",
+                "B",
+                "B",
+                "A",
+                "B",
+            ],
+            "passed": [
+                True,
+                True,
+                False,
+                False,
+                True,
+                True,
+                False,
+                True,
+                False,
+                True,
+                True,
+                True,
+                True,
+                False,
+                True,
+                True,
+                False,
+                True,
+                True,
+                True,
+            ],
+        }
+    )
     df.write_csv(path)
     return path
 

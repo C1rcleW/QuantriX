@@ -90,8 +90,16 @@ class TypeDetector:
             return VariableType.STRING
 
         # Rule 4: Integer columns — cardinality analysis
-        if dtype in (pl.Int64, pl.Int32, pl.Int16, pl.Int8,
-                      pl.UInt64, pl.UInt32, pl.UInt16, pl.UInt8):
+        if dtype in (
+            pl.Int64,
+            pl.Int32,
+            pl.Int16,
+            pl.Int8,
+            pl.UInt64,
+            pl.UInt32,
+            pl.UInt16,
+            pl.UInt8,
+        ):
             # No valid data → keep current type
             if n_valid == 0:
                 return current_type

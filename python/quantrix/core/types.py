@@ -22,9 +22,9 @@ class VariableType(StrEnum):
     """
 
     CONTINUOUS = "continuous"  # Interval/ratio scale (SPSS: Scale)
-    ORDINAL = "ordinal"        # Ordered categories (SPSS: Ordinal)
-    NOMINAL = "nominal"        # Unordered categories (SPSS: Nominal)
-    STRING = "string"          # Free-text (SPSS: String)
+    ORDINAL = "ordinal"  # Ordered categories (SPSS: Ordinal)
+    NOMINAL = "nominal"  # Unordered categories (SPSS: Nominal)
+    STRING = "string"  # Free-text (SPSS: String)
 
 
 class MeasureLevel(StrEnum):

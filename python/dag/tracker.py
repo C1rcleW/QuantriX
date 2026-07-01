@@ -7,7 +7,7 @@ analysis step as a provenance node in the DAG.
 from __future__ import annotations
 
 from quantrix.core.dataset import Dataset
-from quantrix.dag.graph import AnalysisDAG, NodeKind, NodeStatus, ProvenanceNode
+from quantrix.dag.graph import AnalysisDAG, NodeKind, ProvenanceNode
 
 
 class OperationTracker:
@@ -65,6 +65,7 @@ class OperationTracker:
         if depends_on:
             deps = depends_on if isinstance(depends_on, list) else [depends_on]
             from uuid import UUID
+
             for dep_id in deps:
                 self.dag.add_edge(UUID(dep_id), node.id, "depends_on")
 
@@ -89,6 +90,7 @@ class OperationTracker:
         if depends_on:
             deps = depends_on if isinstance(depends_on, list) else [depends_on]
             from uuid import UUID
+
             for dep_id in deps:
                 self.dag.add_edge(UUID(dep_id), node.id, "depends_on")
 

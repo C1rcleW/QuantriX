@@ -9,10 +9,8 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from quantrix.report.generator import (
-    Report,
     ReportGenerator,
     ReportSection,
-    section_from_interpretation,
 )
 
 router = APIRouter(prefix="/api/report", tags=["report"])

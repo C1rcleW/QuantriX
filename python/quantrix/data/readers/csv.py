@@ -85,7 +85,12 @@ class CsvReader:
         for col_name in df.columns:
             dtype = df[col_name].dtype
 
-            if dtype in (pl.Float64, pl.Float32) or dtype in (pl.Int64, pl.Int32, pl.Int16, pl.Int8):
+            if dtype in (pl.Float64, pl.Float32) or dtype in (
+                pl.Int64,
+                pl.Int32,
+                pl.Int16,
+                pl.Int8,
+            ):
                 var_type = VariableType.CONTINUOUS
             elif dtype == pl.Boolean:
                 var_type = VariableType.NOMINAL

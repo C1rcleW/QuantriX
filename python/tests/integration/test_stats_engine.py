@@ -1,7 +1,6 @@
 """Integration tests for the statistics engine."""
 
 import polars as pl
-import pytest
 
 from quantrix.core.dataset import Dataset
 from quantrix.core.metadata import VariableMetadata
@@ -22,7 +21,9 @@ def make_ds(data: dict) -> Dataset:
         elif dtype in (pl.Int64, pl.Int32, pl.Int16, pl.Int8):
             n_unique = df[name].n_unique()
             vt = VariableType.NOMINAL if n_unique <= 2 else VariableType.CONTINUOUS
-        vars_list.append(VariableMetadata(name=name, variable_type=vt, n_valid=len(df)-df[name].null_count()))
+        vars_list.append(
+            VariableMetadata(name=name, variable_type=vt, n_valid=len(df) - df[name].null_count())
+        )
     return Dataset(name="test", n_rows=df.height, n_columns=df.width, variables=vars_list, data=df)
 
 
@@ -50,8 +51,12 @@ class TestDescriptive:
 
 class TestComparison:
     def test_ttest(self):
-        ds = make_ds({"score": [85, 90, 78, 92, 88, 76, 82, 95, 80, 87],
-                       "group": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]})
+        ds = make_ds(
+            {
+                "score": [85, 90, 78, 92, 88, 76, 82, 95, 80, 87],
+                "group": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            }
+        )
         dv = get_var(ds, "score")
         iv = get_var(ds, "group")
         iv.variable_type = VariableType.NOMINAL
@@ -62,18 +67,24 @@ class TestComparison:
         assert "cohens_d" in r["effect_sizes"]
 
     def test_anova(self):
-        ds = make_ds({"score": [85, 90, 78, 82, 80, 70, 72, 68, 75, 88, 92, 95],
-                       "group": [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2]})
+        ds = make_ds(
+            {
+                "score": [85, 90, 78, 82, 80, 70, 72, 68, 75, 88, 92, 95],
+                "group": [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2],
+            }
+        )
         dv = get_var(ds, "score")
         iv = get_var(ds, "group")
-        iv.variable_type = VariableType.NOMINAL; iv.n_unique = 3
+        iv.variable_type = VariableType.NOMINAL
+        iv.n_unique = 3
         r = execute_analysis("oneway_anova", ds, dv, [iv])
         assert r["errors"] == []
         assert "f_stat" in r["statistics"]
 
     def test_mann_whitney(self):
-        ds = make_ds({"rank": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-                       "group": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]})
+        ds = make_ds(
+            {"rank": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "group": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]}
+        )
         dv = get_var(ds, "rank")
         iv = get_var(ds, "group")
         iv.variable_type = VariableType.NOMINAL
@@ -85,6 +96,7 @@ class TestComparison:
 class TestCorrelation:
     def test_pearson(self):
         import numpy as np
+
         rng = np.random.default_rng(42)
         x = rng.normal(0, 1, 50)
         y = x * 0.8 + rng.normal(0, 0.3, 50)
@@ -96,8 +108,12 @@ class TestCorrelation:
         assert r["statistics"]["r"] > 0.5  # strong positive
 
     def test_chi_square(self):
-        ds = make_ds({"gender": [1, 1, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2],
-                       "passed": [1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0]})
+        ds = make_ds(
+            {
+                "gender": [1, 1, 2, 2, 1, 1, 2, 2, 1, 2, 1, 2],
+                "passed": [1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0],
+            }
+        )
         dv = get_var(ds, "passed")
         dv.variable_type = VariableType.NOMINAL
         iv = get_var(ds, "gender")
@@ -110,6 +126,7 @@ class TestCorrelation:
 class TestRegression:
     def test_linear(self):
         import numpy as np
+
         rng = np.random.default_rng(42)
         x = rng.normal(50, 10, 30)
         y = x * 100 + 20000 + rng.normal(0, 5000, 30)

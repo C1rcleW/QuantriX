@@ -81,6 +81,7 @@ class TestSuggestOrdinalFromLabels:
 
     def test_labeled_likert_becomes_ordinal(self):
         from quantrix.core.metadata import ValueLabel
+
         var = VariableMetadata(
             name="satisfaction",
             variable_type=VariableType.NOMINAL,
@@ -97,6 +98,7 @@ class TestSuggestOrdinalFromLabels:
 
     def test_unordered_labels_remain_nominal(self):
         from quantrix.core.metadata import ValueLabel
+
         var = VariableMetadata(
             name="region",
             variable_type=VariableType.NOMINAL,
@@ -111,6 +113,7 @@ class TestSuggestOrdinalFromLabels:
 
     def test_too_few_labels_remain_nominal(self):
         from quantrix.core.metadata import ValueLabel
+
         var = VariableMetadata(
             name="gender",
             variable_type=VariableType.NOMINAL,

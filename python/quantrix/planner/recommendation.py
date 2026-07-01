@@ -45,11 +45,7 @@ class ResearchPlanner:
         iv_names = roles.get("independent", [])
 
         dv = dataset.get_variable(str(dv_name)) if dv_name else None
-        ivs = [
-            dataset.get_variable(str(n))
-            for n in (iv_names or [])
-            if isinstance(n, str)
-        ]
+        ivs = [dataset.get_variable(str(n)) for n in (iv_names or []) if isinstance(n, str)]
 
         # Get recommendations from decision tree
         candidates = self.tree.recommend(goal=goal, dependent=dv, independents=ivs)
@@ -65,9 +61,7 @@ class ResearchPlanner:
             "recommendations": self._format(candidates, dv, ivs),
         }
 
-    def _fallback(
-        self, dataset: Dataset, goal: str
-    ) -> list[MethodCandidate]:
+    def _fallback(self, dataset: Dataset, goal: str) -> list[MethodCandidate]:
         """Try all reasonable variable combos as fallback."""
         results: list[MethodCandidate] = []
         seen: set[str] = set()
@@ -89,9 +83,7 @@ class ResearchPlanner:
 
         if not results:
             for var in dataset.variables[:5]:
-                r = self.tree.recommend(
-                    goal=ResearchGoal.DESCRIBE, dependent=var, independents=[]
-                )
+                r = self.tree.recommend(goal=ResearchGoal.DESCRIBE, dependent=var, independents=[])
                 for c in r:
                     if c.method_name not in seen:
                         seen.add(c.method_name)

@@ -24,10 +24,13 @@ def dataset_id(client):
 
 class TestAnalysisPlan:
     def test_basic_plan(self, client, dataset_id):
-        r = client.post("/api/analysis/plan", json={
-            "dataset_id": dataset_id,
-            "question": "Does gender affect income?",
-        })
+        r = client.post(
+            "/api/analysis/plan",
+            json={
+                "dataset_id": dataset_id,
+                "question": "Does gender affect income?",
+            },
+        )
         assert r.status_code == 200
         data = r.json()
         assert data["question_type"] in ("difference", "prediction")
@@ -39,50 +42,68 @@ class TestAnalysisPlan:
         assert "confidence" in rec
 
     def test_descriptive_plan(self, client, dataset_id):
-        r = client.post("/api/analysis/plan", json={
-            "dataset_id": dataset_id,
-            "question": "Describe the distribution of income.",
-        })
+        r = client.post(
+            "/api/analysis/plan",
+            json={
+                "dataset_id": dataset_id,
+                "question": "Describe the distribution of income.",
+            },
+        )
         assert r.status_code == 200
         data = r.json()
         assert data["question_type"] == "descriptive"
 
     def test_empty_question_fails(self, client, dataset_id):
-        r = client.post("/api/analysis/plan", json={
-            "dataset_id": dataset_id,
-            "question": "   ",
-        })
+        r = client.post(
+            "/api/analysis/plan",
+            json={
+                "dataset_id": dataset_id,
+                "question": "   ",
+            },
+        )
         assert r.status_code == 400
 
     def test_nonexistent_dataset(self, client):
-        r = client.post("/api/analysis/plan", json={
-            "dataset_id": "999",
-            "question": "What predicts income?",
-        })
+        r = client.post(
+            "/api/analysis/plan",
+            json={
+                "dataset_id": "999",
+                "question": "What predicts income?",
+            },
+        )
         assert r.status_code == 404
 
     def test_plan_includes_design(self, client, dataset_id):
-        r = client.post("/api/analysis/plan", json={
-            "dataset_id": dataset_id,
-            "question": "Does gender affect income over time?",
-        })
+        r = client.post(
+            "/api/analysis/plan",
+            json={
+                "dataset_id": dataset_id,
+                "question": "Does gender affect income over time?",
+            },
+        )
         assert r.status_code == 200
         assert r.json()["design"] == "longitudinal"
 
     def test_plan_returns_alternative_methods(self, client, dataset_id):
-        r = client.post("/api/analysis/plan", json={
-            "dataset_id": dataset_id,
-            "question": "Is there a difference in income between genders?",
-        })
+        r = client.post(
+            "/api/analysis/plan",
+            json={
+                "dataset_id": dataset_id,
+                "question": "Is there a difference in income between genders?",
+            },
+        )
         data = r.json()
         rec = data["recommendations"][0]
         assert "alternative_methods" in rec
 
     def test_plan_ranks_by_confidence(self, client, dataset_id):
-        r = client.post("/api/analysis/plan", json={
-            "dataset_id": dataset_id,
-            "question": "What affects income?",
-        })
+        r = client.post(
+            "/api/analysis/plan",
+            json={
+                "dataset_id": dataset_id,
+                "question": "What affects income?",
+            },
+        )
         data = r.json()
         if len(data["recommendations"]) >= 2:
             confidences = [rec["confidence"] for rec in data["recommendations"]]

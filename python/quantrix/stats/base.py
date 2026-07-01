@@ -17,7 +17,6 @@ from quantrix.core.metadata import VariableMetadata
 
 @dataclass
 class StatResult:
-
     def __init__(self, **kwargs):
         known = {f.name for f in self.__dataclass_fields__.values()}
         for k, v in kwargs.items():
@@ -25,15 +24,15 @@ class StatResult:
                 setattr(self, k, v)
             else:
                 self.misc[k] = v
-        if not hasattr(self, 'statistics'):
+        if not hasattr(self, "statistics"):
             self.statistics = {}
-        if not hasattr(self, 'effect_sizes'):
+        if not hasattr(self, "effect_sizes"):
             self.effect_sizes = {}
-        if not hasattr(self, 'tables'):
+        if not hasattr(self, "tables"):
             self.tables = []
-        if not hasattr(self, 'errors'):
+        if not hasattr(self, "errors"):
             self.errors = []
-        if not hasattr(self, 'group_labels'):
+        if not hasattr(self, "group_labels"):
             self.group_labels = []
 
     """Internal result container. Mapped to AnalysisResult in the API layer."""
@@ -111,8 +110,7 @@ class BaseStatMethod:
         return p_value < alpha
 
     @staticmethod
-    def _cohens_d(mean1: float, mean2: float, sd1: float, sd2: float,
-                  n1: int, n2: int) -> float:
+    def _cohens_d(mean1: float, mean2: float, sd1: float, sd2: float, n1: int, n2: int) -> float:
         """Cohen's d for independent groups with pooled SD."""
         pooled_sd = (((n1 - 1) * sd1**2 + (n2 - 1) * sd2**2) / (n1 + n2 - 2)) ** 0.5
         if pooled_sd == 0:

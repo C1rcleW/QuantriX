@@ -40,8 +40,7 @@ class TestDecisionTree:
 
     def test_compare_many_groups(self, tree):
         dv = VariableMetadata(name="score", variable_type=VariableType.CONTINUOUS)
-        iv = VariableMetadata(name="education", variable_type=VariableType.ORDINAL,
-                              n_unique=5)
+        iv = VariableMetadata(name="education", variable_type=VariableType.ORDINAL, n_unique=5)
         recs = tree.recommend(ResearchGoal.COMPARE_GROUPS, dv, [iv])
         names = [r.method_name for r in recs]
         assert "oneway_anova" in names
@@ -80,8 +79,7 @@ class TestDecisionTree:
         assert "linear_regression" in names
 
     def test_prediction_binary(self, tree):
-        dv = VariableMetadata(name="passed", variable_type=VariableType.NOMINAL,
-                              n_unique=2)
+        dv = VariableMetadata(name="passed", variable_type=VariableType.NOMINAL, n_unique=2)
         iv = VariableMetadata(name="score", variable_type=VariableType.CONTINUOUS)
         recs = tree.recommend(ResearchGoal.PREDICT, dv, [iv])
         names = [r.method_name for r in recs]

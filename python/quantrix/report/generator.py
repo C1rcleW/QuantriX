@@ -15,9 +15,9 @@ from datetime import datetime
 class ReportSection:
     """A single section of the report (one analysis)."""
 
-    heading: str                    # e.g., "Descriptive Statistics"
-    subheading: str = ""            # e.g., "Income Distribution"
-    interpretation: str = ""        # Natural language interpretation
+    heading: str  # e.g., "Descriptive Statistics"
+    subheading: str = ""  # e.g., "Income Distribution"
+    interpretation: str = ""  # Natural language interpretation
     tables: list[dict] = field(default_factory=list)
     # Each table: {"title": str, "columns": [...], "rows": [[...]]}
     figures: list[str] = field(default_factory=list)  # Figure descriptions
@@ -31,7 +31,7 @@ class Report:
     title: str = "Quantrix Analysis Report"
     dataset_name: str = ""
     generated_at: str = field(default_factory=lambda: datetime.now().isoformat())
-    format: str = "apa"            # "apa", "chinese"
+    format: str = "apa"  # "apa", "chinese"
 
     # Metadata
     n_rows: int = 0
@@ -86,7 +86,9 @@ class ReportGenerator:
             lines.append("## Method")
             lines.append("")
             lines.append(f"Data were obtained from the **{report.dataset_name}** dataset")
-            lines.append(f"({report.source_format.upper() if report.source_format else 'CSV'} format), ")
+            lines.append(
+                f"({report.source_format.upper() if report.source_format else 'CSV'} format), "
+            )
             lines.append(f"containing N = {report.n_rows} observations ")
             lines.append(f"across {report.n_columns} variables.")
             lines.append("")
@@ -96,7 +98,7 @@ class ReportGenerator:
             lines.append("## Results")
             lines.append("")
 
-        for i, section in enumerate(report.sections):
+        for _i, section in enumerate(report.sections):
             if section.heading:
                 lines.append(f"### {section.heading}")
                 lines.append("")

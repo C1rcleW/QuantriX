@@ -47,17 +47,19 @@ class OutlierRule(SafetyRule):
                 dv.outlier_count = n_outliers
                 outlier_pct = n_outliers / len(col) * 100
                 if outlier_pct > _MIN_OUTLIER_PCT:
-                    warnings.append(SafetyWarning(
-                        rule_name=self.rule_name,
-                        severity="warning",
-                        message=(
-                            f"'{dv.name}' has {n_outliers} value(s) differing "
-                            f"from the majority ({mode_val}). IQR is zero, "
-                            f"so these are flagged as potential outliers."
-                        ),
-                        suggestion="Investigate these cases.",
-                        variable_names=[dv.name],
-                    ))
+                    warnings.append(
+                        SafetyWarning(
+                            rule_name=self.rule_name,
+                            severity="warning",
+                            message=(
+                                f"'{dv.name}' has {n_outliers} value(s) differing "
+                                f"from the majority ({mode_val}). IQR is zero, "
+                                f"so these are flagged as potential outliers."
+                            ),
+                            suggestion="Investigate these cases.",
+                            variable_names=[dv.name],
+                        )
+                    )
             return warnings
 
         lower = q1 - _IQR_MULTIPLIER * iqr
@@ -71,29 +73,33 @@ class OutlierRule(SafetyRule):
             dv.outlier_count = n_outliers
 
         if outlier_pct > _MIN_OUTLIER_PCT:
-            warnings.append(SafetyWarning(
-                rule_name=self.rule_name,
-                severity="warning",
-                message=(
-                    f"'{dv.name}' has {n_outliers} potential outlier(s) "
-                    f"({outlier_pct:.1f}% of valid values). "
-                    f"Range: [{lower:.2f}, {upper:.2f}]."
-                ),
-                suggestion=(
-                    "Investigate these cases. Consider: (1) verifying data entry, "
-                    "(2) winsorizing, (3) using robust methods, or "
-                    "(4) reporting results with and without outliers."
-                ),
-                variable_names=[dv.name],
-            ))
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="warning",
+                    message=(
+                        f"'{dv.name}' has {n_outliers} potential outlier(s) "
+                        f"({outlier_pct:.1f}% of valid values). "
+                        f"Range: [{lower:.2f}, {upper:.2f}]."
+                    ),
+                    suggestion=(
+                        "Investigate these cases. Consider: (1) verifying data entry, "
+                        "(2) winsorizing, (3) using robust methods, or "
+                        "(4) reporting results with and without outliers."
+                    ),
+                    variable_names=[dv.name],
+                )
+            )
         elif n_outliers > 0:
-            warnings.append(SafetyWarning(
-                rule_name=self.rule_name,
-                severity="info",
-                message=(
-                    f"'{dv.name}' has {n_outliers} potential outlier(s) "
-                    f"({outlier_pct:.1f}% of valid values)."
-                ),
-            ))
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="info",
+                    message=(
+                        f"'{dv.name}' has {n_outliers} potential outlier(s) "
+                        f"({outlier_pct:.1f}% of valid values)."
+                    ),
+                )
+            )
 
         return warnings

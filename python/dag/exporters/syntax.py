@@ -46,19 +46,19 @@ def _export_analysis_sps(node) -> list[str]:
         ]
     elif method == "chi_square":
         return [
-            f"CROSSTABS",
+            "CROSSTABS",
             f"  /TABLES={iv} BY {dv}",
             "  /STATISTICS=CHISQ.",
         ]
     elif method == "pearson_correlation":
         return [
-            f"CORRELATIONS",
+            "CORRELATIONS",
             f"  /VARIABLES={dv} {iv}",
             "  /PRINT=TWOTAIL NOSIG.",
         ]
     elif method == "linear_regression":
         return [
-            f"REGRESSION",
+            "REGRESSION",
             f"  /DEPENDENT={dv}",
             f"  /METHOD=ENTER {iv}.",
         ]

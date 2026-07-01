@@ -36,9 +36,7 @@ class TestSpssReader:
         assert self.dataset.source_format == "sav"
 
     def test_variable_names(self):
-        assert self.dataset.variable_names == [
-            "income", "education_level", "gender", "city", "age"
-        ]
+        assert self.dataset.variable_names == ["income", "education_level", "gender", "city", "age"]
 
     # ── Variable metadata assertions ──
 
@@ -115,7 +113,9 @@ class TestSpssReader:
         # when written programmatically, but the data-level null conversion
         # is verified by test_missing_count_from_data below.
         # Accept either explicit definition or empty (data-level fallback).
-        assert income.missing_definition.discrete == [99.0] or income.missing_definition.discrete == []
+        assert (
+            income.missing_definition.discrete == [99.0] or income.missing_definition.discrete == []
+        )
 
     def test_missing_count_from_data(self):
         income = self.dataset.get_variable("income")

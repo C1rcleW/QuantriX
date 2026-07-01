@@ -70,7 +70,9 @@ class DataProfile:
         for vp in self.variable_profiles:
             lines.append(f"### {vp.display_name} (`{vp.name}`)")
             lines.append(f"- **Type**: {vp.variable_type}")
-            lines.append(f"- **Valid**: {vp.n_valid}/{vp.n_total} ({vp.completeness_pct:.1f}% complete)")
+            lines.append(
+                f"- **Valid**: {vp.n_valid}/{vp.n_total} ({vp.completeness_pct:.1f}% complete)"
+            )
             if vp.n_unique is not None:
                 lines.append(f"- **Unique values**: {vp.n_unique}")
 
@@ -138,8 +140,7 @@ class ProfileGenerator:
 
         # Variable profiles
         var_profiles = [
-            self._build_variable_profile(var, df[var.name])
-            for var in dataset.variables
+            self._build_variable_profile(var, df[var.name]) for var in dataset.variables
         ]
 
         # Missing stats
@@ -153,12 +154,8 @@ class ProfileGenerator:
         n_incomplete = dataset.n_rows - n_complete
 
         # Quality flags
-        has_high_missing = any(
-            vp.completeness_pct < 80.0 for vp in var_profiles
-        )
-        has_constant = any(
-            vp.n_unique is not None and vp.n_unique <= 1 for vp in var_profiles
-        )
+        has_high_missing = any(vp.completeness_pct < 80.0 for vp in var_profiles)
+        has_constant = any(vp.n_unique is not None and vp.n_unique <= 1 for vp in var_profiles)
 
         return DataProfile(
             dataset_name=dataset.name,
@@ -176,7 +173,8 @@ class ProfileGenerator:
 
     @staticmethod
     def _build_variable_profile(
-        var: VariableMetadata, col: pl.Series,
+        var: VariableMetadata,
+        col: pl.Series,
     ) -> VariableProfile:
         """Build a VariableProfile from metadata and data."""
 
@@ -201,9 +199,7 @@ class ProfileGenerator:
         # Value labels summary
         labels_summary = ""
         if var.value_labels:
-            preview = ", ".join(
-                f"{vl.value}={vl.label}" for vl in var.value_labels[:5]
-            )
+            preview = ", ".join(f"{vl.value}={vl.label}" for vl in var.value_labels[:5])
             if len(var.value_labels) > 5:
                 preview += f" (+{len(var.value_labels) - 5} more)"
             labels_summary = preview

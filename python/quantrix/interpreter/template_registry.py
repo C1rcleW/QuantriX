@@ -9,8 +9,6 @@ Phase 6 will add optional LLM polish.
 
 from __future__ import annotations
 
-from typing import Any
-
 # ── Template registry ──────────────────────────────────────────────────
 
 _TEMPLATES: dict[str, str] = {}
@@ -36,7 +34,9 @@ def get(method_name: str) -> str | None:
 # ── Descriptive statistics ─────────────────────────────────────────────
 
 
-register("descriptive_statistics", """\
+register(
+    "descriptive_statistics",
+    """\
 ## Descriptive Statistics for **{dv_label}**
 
 {dv_label} was measured on {n} observations (valid: {n_valid}, missing: {missing_count}, {missing_pct:.1f}%).
@@ -45,21 +45,27 @@ The average {dv_label} was **{mean:.2f}** (SD = {std_dev:.2f}), \
 ranging from {min_val:.2f} to {max_val:.2f}.
 
 {skewness_text}\
-""")
+""",
+)
 
-register("frequency_analysis", """\
+register(
+    "frequency_analysis",
+    """\
 ## Frequency Analysis for **{dv_label}**
 
 {category_summary}
 
 A total of {n} responses were recorded across {n_categories} categories.
 The most common category was **"{mode_category}"** ({mode_count} responses, {mode_pct:.1f}%).
-""")
+""",
+)
 
 # ── Group comparison ───────────────────────────────────────────────────
 
 
-register("independent_ttest", """\
+register(
+    "independent_ttest",
+    """\
 ## Independent Samples t-test: {dv_label} by {iv_label}
 
 An independent samples t-test was conducted to compare {dv_label} \
@@ -70,9 +76,12 @@ between {group_labels}.
 
 {sig_text}
 {effect_size_text}
-""")
+""",
+)
 
-register("oneway_anova", """\
+register(
+    "oneway_anova",
+    """\
 ## One-Way ANOVA: {dv_label} by {iv_label}
 
 A one-way ANOVA was conducted to compare {dv_label} across \
@@ -84,9 +93,12 @@ A one-way ANOVA was conducted to compare {dv_label} across \
 
 {effect_size_text}
 {posthoc_note}
-""")
+""",
+)
 
-register("mann_whitney", """\
+register(
+    "mann_whitney",
+    """\
 ## Mann-Whitney U Test: {dv_label} by {iv_label}
 
 A Mann-Whitney U test (nonparametric alternative to the independent \
@@ -94,9 +106,12 @@ t-test) was conducted to compare {dv_label} between {group_labels}.
 
 {sig_text}
 {effect_size_text}
-""")
+""",
+)
 
-register("kruskal_wallis", """\
+register(
+    "kruskal_wallis",
+    """\
 ## Kruskal-Wallis H Test: {dv_label} by {iv_label}
 
 A Kruskal-Wallis H test (nonparametric alternative to one-way ANOVA) \
@@ -104,12 +119,15 @@ was conducted to compare {dv_label} across {n_groups} groups.
 
 {sig_text}
 {effect_size_text}
-""")
+""",
+)
 
 # ── Association ────────────────────────────────────────────────────────
 
 
-register("pearson_correlation", """\
+register(
+    "pearson_correlation",
+    """\
 ## Pearson Correlation: {dv_label} and {iv_label}
 
 A Pearson correlation was computed to assess the linear relationship \
@@ -119,9 +137,12 @@ There was a **{strength} {direction}** correlation between the two \
 variables, r({df}) = {r:.3f}, {sig_text}.
 
 This indicates that {interpretation}.
-""")
+""",
+)
 
-register("spearman_correlation", """\
+register(
+    "spearman_correlation",
+    """\
 ## Spearman Rank Correlation: {dv_label} and {iv_label}
 
 A Spearman rank-order correlation was computed to assess the monotonic \
@@ -131,9 +152,12 @@ There was a **{strength} {direction}** correlation, \
 ρ({n}) = {rho:.3f}, {sig_text}.
 
 {note}
-""")
+""",
+)
 
-register("chi_square", """\
+register(
+    "chi_square",
+    """\
 ## Chi-Square Test of Independence: {dv_label} × {iv_label}
 
 A chi-square test of independence was performed to examine the \
@@ -143,12 +167,15 @@ relationship between {dv_label} and {iv_label}.
 
 {cell_note}
 {effect_size_text}
-""")
+""",
+)
 
 # ── Prediction ─────────────────────────────────────────────────────────
 
 
-register("linear_regression", """\
+register(
+    "linear_regression",
+    """\
 ## Linear Regression: Predicting {dv_label}
 
 A linear regression was conducted to predict {dv_label} from \
@@ -161,7 +188,8 @@ F({df_model}, {df_residual}) = {f_stat:.2f}.
 The model explains {r_squared_pct:.1f}% of the variance in {dv_label}.
 
 {coefficient_table}
-""")
+""",
+)
 
 
 # ── Helpers for template filling ───────────────────────────────────────

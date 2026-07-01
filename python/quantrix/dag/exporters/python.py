@@ -34,14 +34,20 @@ def export_python(dag: AnalysisDAG, dataset_name: str = "data") -> str:
                 lines.append("t, p = stats.ttest_ind(g1.to_numpy(), g2.to_numpy())")
                 lines.append("print(f't={t:.3f}, p={p:.4f}')")
             elif m == "pearson_correlation":
-                lines.append(f"r, p = stats.pearsonr(df['{dv}'].drop_nulls(), df['{iv}'].drop_nulls())")
+                lines.append(
+                    f"r, p = stats.pearsonr(df['{dv}'].drop_nulls(), df['{iv}'].drop_nulls())"
+                )
                 lines.append("print(f'r={r:.3f}, p={p:.4f}')")
             elif m == "oneway_anova":
-                lines.append(f"groups = [g['{dv}'].drop_nulls().to_numpy() for _, g in df.group_by('{iv}')]")
+                lines.append(
+                    f"groups = [g['{dv}'].drop_nulls().to_numpy() for _, g in df.group_by('{iv}')]"
+                )
                 lines.append("f, p = stats.f_oneway(*groups)")
                 lines.append("print(f'F={f:.3f}, p={p:.4f}')")
             elif m == "chi_square":
-                lines.append(f"ct = df.group_by(['{iv}','{dv}']).len().pivot(values='len', index='{iv}', columns='{dv}').fill_null(0)")
+                lines.append(
+                    f"ct = df.group_by(['{iv}','{dv}']).len().pivot(values='len', index='{iv}', columns='{dv}').fill_null(0)"
+                )
                 lines.append("chi2, p, dof, _ = stats.chi2_contingency(ct.to_numpy())")
                 lines.append("print(f'chi2={chi2:.3f}, df={dof}, p={p:.4f}')")
             elif m == "linear_regression":

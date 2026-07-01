@@ -13,7 +13,10 @@ class TestClassifyQuestion:
         assert classify_question("Describe the demographics.") == "descriptive"
 
     def test_difference(self):
-        assert classify_question("Is there a difference in income between men and women?") == "difference"
+        assert (
+            classify_question("Is there a difference in income between men and women?")
+            == "difference"
+        )
         assert classify_question("Compare scores across groups.") == "difference"
 
     def test_association(self):
@@ -64,4 +67,7 @@ class TestInferDesign:
         assert infer_design_from_text("How does income change over time?") == "longitudinal"
 
     def test_experimental(self):
-        assert infer_design_from_text("What is the effect of the randomized treatment?") == "experimental"
+        assert (
+            infer_design_from_text("What is the effect of the randomized treatment?")
+            == "experimental"
+        )

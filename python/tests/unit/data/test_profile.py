@@ -18,35 +18,59 @@ class TestProfileGenerator:
 
     @pytest.fixture
     def sample_dataset(self):
-        df = pl.DataFrame({
-            "age": [25, 30, 35, None, 45],
-            "gender": [1, 2, 1, 2, 1],
-            "score": [85.5, 92.0, 78.3, 88.1, None],
-            "city": ["Beijing", "Shanghai", "Beijing", None, "Chengdu"],
-        })
+        df = pl.DataFrame(
+            {
+                "age": [25, 30, 35, None, 45],
+                "gender": [1, 2, 1, 2, 1],
+                "score": [85.5, 92.0, 78.3, 88.1, None],
+                "city": ["Beijing", "Shanghai", "Beijing", None, "Chengdu"],
+            }
+        )
         gender_labels = [
             ValueLabel(value=1, label="Male"),
             ValueLabel(value=2, label="Female"),
         ]
         variables = [
             VariableMetadata(
-                name="age", label="Age", variable_type=VariableType.CONTINUOUS,
-                n_valid=4, missing_count=1, n_unique=4,
-                min_value=25.0, max_value=45.0, mean=33.75, std_dev=7.5,
+                name="age",
+                label="Age",
+                variable_type=VariableType.CONTINUOUS,
+                n_valid=4,
+                missing_count=1,
+                n_unique=4,
+                min_value=25.0,
+                max_value=45.0,
+                mean=33.75,
+                std_dev=7.5,
             ),
             VariableMetadata(
-                name="gender", label="Gender", variable_type=VariableType.NOMINAL,
-                n_valid=5, missing_count=0, n_unique=2,
+                name="gender",
+                label="Gender",
+                variable_type=VariableType.NOMINAL,
+                n_valid=5,
+                missing_count=0,
+                n_unique=2,
                 value_labels=gender_labels,
             ),
             VariableMetadata(
-                name="score", label="Test Score", variable_type=VariableType.CONTINUOUS,
-                n_valid=4, missing_count=1, n_unique=4,
-                min_value=78.3, max_value=92.0, mean=85.975, std_dev=5.0,
+                name="score",
+                label="Test Score",
+                variable_type=VariableType.CONTINUOUS,
+                n_valid=4,
+                missing_count=1,
+                n_unique=4,
+                min_value=78.3,
+                max_value=92.0,
+                mean=85.975,
+                std_dev=5.0,
             ),
             VariableMetadata(
-                name="city", label="City", variable_type=VariableType.STRING,
-                n_valid=4, missing_count=1, n_unique=3,
+                name="city",
+                label="City",
+                variable_type=VariableType.STRING,
+                n_valid=4,
+                missing_count=1,
+                n_unique=3,
             ),
         ]
         return Dataset(
@@ -94,8 +118,11 @@ class TestProfileGenerator:
     def test_constant_variable_detected(self, generator):
         df = pl.DataFrame({"x": [1, 1, 1, 1, 1]})
         var = VariableMetadata(
-            name="x", variable_type=VariableType.CONTINUOUS,
-            n_valid=5, missing_count=0, n_unique=1,
+            name="x",
+            variable_type=VariableType.CONTINUOUS,
+            n_valid=5,
+            missing_count=0,
+            n_unique=1,
         )
         ds = Dataset(name="test", n_rows=5, n_columns=1, variables=[var], data=df)
         profile = generator.generate(ds)
@@ -104,8 +131,11 @@ class TestProfileGenerator:
     def test_high_missing_detected(self, generator):
         df = pl.DataFrame({"x": [1, None, None, None, None]})
         var = VariableMetadata(
-            name="x", variable_type=VariableType.CONTINUOUS,
-            n_valid=1, missing_count=4, n_unique=1,
+            name="x",
+            variable_type=VariableType.CONTINUOUS,
+            n_valid=1,
+            missing_count=4,
+            n_unique=1,
         )
         ds = Dataset(name="test", n_rows=5, n_columns=1, variables=[var], data=df)
         profile = generator.generate(ds)
