@@ -8,7 +8,8 @@
 [![Tests](https://img.shields.io/badge/tests-160%20passed-green)]()
 [![Status](https://img.shields.io/badge/status-pre--alpha-orange)]()
 
-Quantrix is an open-source academic infrastructure for social science research. From data to paper, one straight line.
+Quantrix is an open-source academic infrastructure for social science research. 
+From data to paper, one straight line.
 
 Quantrix 是一个面向社会科学研究的开源学术基础设施。从数据到论文，一条直线。
 
