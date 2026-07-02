@@ -1,4 +1,4 @@
-# Quantrix v0.1.0
+# Quantrix v0.1.0 (bulind）
 
 **AI-Native Quantitative Research Platform for Social Sciences**
 **面向社会科学研究的 AI 原生定量分析平台**
