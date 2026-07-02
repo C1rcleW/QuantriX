@@ -1,7 +1,8 @@
 """Analysis plan routes.
 
-POST   /api/analysis/plan    — Submit a research question, get method recommendations
-POST   /api/analysis/execute — Execute a statistical analysis
+POST   /api/analysis/plan           — Submit a research question, get method recommendations
+POST   /api/analysis/plan-structured — Submit goal + variables, get method recommendations
+POST   /api/analysis/execute        — Execute a statistical analysis
 """
 
 from __future__ import annotations
@@ -9,8 +10,9 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from quantrix.dag.tracker import get_tracker
 from quantrix.planner.recommendation import ResearchPlanner
-from quantrix.server.registry import get_dataset
+from quantrix.server.registry import get_dataset, get_import_node_id
 from quantrix.stats.registry import execute_analysis
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
@@ -19,6 +21,13 @@ router = APIRouter(prefix="/api/analysis", tags=["analysis"])
 class PlanRequest(BaseModel):
     dataset_id: str
     question: str
+
+
+class PlanStructuredRequest(BaseModel):
+    dataset_id: str
+    goal: str
+    dependent: str | None = None
+    independents: list[str] = []
 
 
 class PlanResponse(BaseModel):
@@ -49,6 +58,29 @@ def get_analysis_plan(request: PlanRequest) -> PlanResponse:
     )
 
 
+@router.post("/plan-structured", response_model=PlanResponse)
+def get_analysis_plan_structured(request: PlanStructuredRequest) -> PlanResponse:
+    """Generate an analysis plan from explicit goal + variable selections.
+
+    No NLP required — the goal and variables are set directly by the frontend.
+    """
+    dataset = get_dataset(request.dataset_id)
+    planner = ResearchPlanner()
+    plan = planner.plan_structured(
+        goal=request.goal,
+        dv_name=request.dependent,
+        iv_names=request.independents,
+        dataset=dataset,
+    )
+
+    return PlanResponse(
+        question=plan["question"],
+        question_type=plan["question_type"],
+        design=plan["design"],
+        recommendations=plan["recommendations"],
+    )
+
+
 class ExecuteRequest(BaseModel):
     dataset_id: str
     method_name: str
@@ -62,4 +94,16 @@ def execute_analysis_route(request: ExecuteRequest) -> dict:
     dv = dataset.get_variable(request.dependent) if request.dependent else None
     ivs = [dataset.get_variable(n) for n in request.independents]
     result = execute_analysis(request.method_name, dataset, dv, ivs)
+
+    tracker = get_tracker()
+    import_node_id = get_import_node_id(request.dataset_id)
+    dv_name = dv.name if dv else None
+    iv_names = [v.name for v in ivs]
+    tracker.record_analysis(
+        method_name=request.method_name,
+        params={"dv": dv_name, "ivs": iv_names},
+        depends_on=import_node_id,
+        label=f"{request.method_name}: {dv_name or '?'} ~ {' + '.join(iv_names) if iv_names else '?'}",
+    )
+
     return result

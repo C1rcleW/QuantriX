@@ -68,25 +68,24 @@ class TypeMatchRule(SafetyRule):
             return []
 
         # Check dependent variable
-        if dv is not None and allowed_dv is not None:
-            if dv.variable_type.value not in allowed_dv:
-                warnings.append(
-                    SafetyWarning(
-                        rule_name=self.rule_name,
-                        severity="error",
-                        message=(
-                            f"Method '{method_name}' requires a dependent variable "
-                            f"of type {sorted(allowed_dv)}, but '{dv.name}' is "
-                            f"'{dv.variable_type.value}'."
-                        ),
-                        suggestion=(
-                            f"Consider using a method compatible with "
-                            f"'{dv.variable_type.value}' variables, or "
-                            f"reclassify '{dv.name}'."
-                        ),
-                        variable_names=[dv.name],
-                    )
+        if dv is not None and allowed_dv is not None and dv.variable_type.value not in allowed_dv:
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="error",
+                    message=(
+                        f"Method '{method_name}' requires a dependent variable "
+                        f"of type {sorted(allowed_dv)}, but '{dv.name}' is "
+                        f"'{dv.variable_type.value}'."
+                    ),
+                    suggestion=(
+                        f"Consider using a method compatible with "
+                        f"'{dv.variable_type.value}' variables, or "
+                        "transforming the variable."
+                    ),
+                    variable_names=[dv.name],
                 )
+            )
 
         # Check independent variables
         if ivs and allowed_iv is not None:
@@ -107,20 +106,19 @@ class TypeMatchRule(SafetyRule):
                     )
 
         # Special case: binary logistic requires exactly 2 categories in DV
-        if method_name == "binary_logistic" and dv is not None:
-            if dv.n_unique is not None and dv.n_unique != 2:
-                warnings.append(
-                    SafetyWarning(
-                        rule_name=self.rule_name,
-                        severity="error",
-                        message=(
-                            f"Binary logistic regression requires exactly 2 categories "
-                            f"in the dependent variable, but '{dv.name}' has "
-                            f"{dv.n_unique} unique values."
-                        ),
-                        suggestion="Use multinomial logistic regression for >2 categories.",
-                        variable_names=[dv.name],
-                    )
+        if method_name == "binary_logistic" and dv is not None and dv.n_unique is not None and dv.n_unique != 2:
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="error",
+                    message=(
+                        f"Binary logistic regression requires exactly 2 categories "
+                        f"in the dependent variable, but '{dv.name}' has "
+                        f"{dv.n_unique} unique values."
+                    ),
+                    suggestion="Recode the dependent variable to exactly 2 categories.",
+                    variable_names=[dv.name],
                 )
+            )
 
         return warnings

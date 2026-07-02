@@ -17,24 +17,6 @@ from quantrix.core.metadata import VariableMetadata
 
 @dataclass
 class StatResult:
-    def __init__(self, **kwargs):
-        known = {f.name for f in self.__dataclass_fields__.values()}
-        for k, v in kwargs.items():
-            if k in known:
-                setattr(self, k, v)
-            else:
-                self.misc[k] = v
-        if not hasattr(self, "statistics"):
-            self.statistics = {}
-        if not hasattr(self, "effect_sizes"):
-            self.effect_sizes = {}
-        if not hasattr(self, "tables"):
-            self.tables = []
-        if not hasattr(self, "errors"):
-            self.errors = []
-        if not hasattr(self, "group_labels"):
-            self.group_labels = []
-
     """Internal result container. Mapped to AnalysisResult in the API layer."""
 
     method_name: str
@@ -45,7 +27,6 @@ class StatResult:
     effect_sizes: dict[str, float] = field(default_factory=dict)
     tables: list[dict] = field(default_factory=list)
 
-    # Interpretation-ready fields
     dv_label: str = ""
     iv_label: str = ""
     group_labels: list[str] = field(default_factory=list)
@@ -69,6 +50,7 @@ class StatResult:
             "sig_text": self.sig_text,
             "effect_size_text": self.effect_size_text,
             "errors": self.errors,
+            "misc": self.misc,
         }
 
 

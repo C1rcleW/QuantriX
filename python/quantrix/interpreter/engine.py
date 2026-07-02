@@ -82,6 +82,7 @@ class ResultInterpreter:
                 defaults["means"] = []
                 defaults["sds"] = []
                 defaults["ns"] = []
+                defaults["missing_pct"] = 0.0
                 defaults.update(stats)
                 detailed = template.format(**defaults)
             except KeyError as e:

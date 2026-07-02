@@ -1,6 +1,5 @@
 """Group comparison: t-test, ANOVA, non-parametric."""
 
-import polars as pl
 from scipy import stats as sps
 
 from quantrix.stats.base import BaseStatMethod, StatResult
@@ -20,7 +19,6 @@ class IndependentTTest(BaseStatMethod):
             )
         col = self._get_column(dataset, dv)
         group_col = self._get_column(dataset, ivs[0])
-        col.drop_nulls()
         mask = col.is_not_null() & group_col.is_not_null()
         groups = group_col.filter(mask).unique().sort().to_list()
         if len(groups) != 2:

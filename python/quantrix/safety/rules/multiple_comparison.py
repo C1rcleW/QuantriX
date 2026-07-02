@@ -53,23 +53,22 @@ class MultipleComparisonRule(SafetyRule):
             )
 
         # Multi-group test → suggest post-hoc
-        if method_name in ("oneway_anova", "kruskal_wallis"):
-            if ivs and ivs[0].n_unique and ivs[0].n_unique > 2:
-                warnings.append(
-                    SafetyWarning(
-                        rule_name=self.rule_name,
-                        severity="info",
-                        message=(
-                            f"With {ivs[0].n_unique} groups, pairwise comparisons "
-                            "require correction for multiple testing."
-                        ),
-                        suggestion=(
-                            "Use Tukey's HSD (ANOVA) or Dunn's test (Kruskal-Wallis) "
-                            "with Bonferroni correction for post-hoc comparisons."
-                        ),
-                        variable_names=[ivs[0].name],
-                    )
+        if method_name in ("oneway_anova", "kruskal_wallis") and ivs and ivs[0].n_unique and ivs[0].n_unique > 2:
+            warnings.append(
+                SafetyWarning(
+                    rule_name=self.rule_name,
+                    severity="info",
+                    message=(
+                        f"With {ivs[0].n_unique} groups, pairwise comparisons "
+                        "require correction for multiple testing."
+                    ),
+                    suggestion=(
+                        "Use Tukey's HSD (ANOVA) or Dunn's test (Kruskal-Wallis) "
+                        "with Bonferroni correction for post-hoc comparisons."
+                    ),
+                    variable_names=[ivs[0].name],
                 )
+            )
 
         # Multiple IVs in crosstab → remind
         if method_name == "crosstab" and len(ivs) > 1:

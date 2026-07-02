@@ -76,8 +76,6 @@ all = [
 [project.entry-points."quantrix.readers"]
 ".sav" = "quantrix.data.readers.sav:SpssReader"
 ".csv" = "quantrix.data.readers.csv:CsvReader"
-".xlsx" = "quantrix.data.readers.excel:ExcelReader"
-".dta" = "quantrix.data.readers.dta:StataReader"
 
 [project.scripts]
 quantrix = "quantrix.server.cli:main"

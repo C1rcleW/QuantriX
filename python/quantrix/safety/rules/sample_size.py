@@ -61,38 +61,35 @@ class SampleSizeRule(SafetyRule):
             )
 
         # Per-group check for group comparison methods
-        if method_name in ("independent_ttest", "oneway_anova", "mann_whitney", "kruskal_wallis"):
-            if ivs and df is not None:
-                group_col = ivs[0].name
-                if group_col in df.columns:
-                    counts = df[group_col].value_counts()
-                    small_groups = [
-                        (row[0], row[1]) for row in counts.rows() if row[1] < _MIN_PER_GROUP
-                    ]
-                    for group_val, count in small_groups:
-                        warnings.append(
-                            SafetyWarning(
-                                rule_name=self.rule_name,
-                                severity="error",
-                                message=(
-                                    f"Group '{group_val}' has only {count} observation(s), "
-                                    f"below the minimum of {_MIN_PER_GROUP}."
-                                ),
-                                suggestion="Consider merging small groups or using a nonparametric test.",
-                                variable_names=[group_col],
-                            )
+        if method_name in ("independent_ttest", "oneway_anova", "mann_whitney", "kruskal_wallis") and ivs and df is not None:
+            group_col = ivs[0].name
+            if group_col in df.columns:
+                counts = df[group_col].value_counts()
+                small_groups = [
+                    (row[0], row[1]) for row in counts.rows() if row[1] < _MIN_PER_GROUP
+                ]
+                for group_val, count in small_groups:
+                    warnings.append(
+                        SafetyWarning(
+                            rule_name=self.rule_name,
+                            severity="error",
+                            message=(
+                                f"Group '{group_val}' has only {count} observation(s), "
+                                f"below the minimum of {_MIN_PER_GROUP}."
+                            ),
+                            suggestion="Consider merging small groups or using a nonparametric test.",
+                            variable_names=[group_col],
                         )
+                    )
 
         # Chi-square expected frequency check
-        if method_name == "chi_square" and dv is not None and ivs and df is not None:
-            if dv.name in df.columns and ivs[0].name in df.columns:
-                # Quick heuristic: if any cell in the crosstab has <5, warn
-                crosstab = df.group_by([ivs[0].name, dv.name]).len()
-                small_cells = crosstab.filter(pl.col("len") < 5)
-                if small_cells.height > 0:
-                    total_cells = crosstab.height
-                    small_pct = small_cells.height / total_cells * 100
-                    if small_pct > 20:
+        if method_name == "chi_square" and dv is not None and ivs and df is not None and dv.name in df.columns and ivs[0].name in df.columns:
+            crosstab = df.group_by([ivs[0].name, dv.name]).len()
+            small_cells = crosstab.filter(pl.col("len") < 5)
+            if small_cells.height > 0:
+                total_cells = crosstab.height
+                small_pct = small_cells.height / total_cells * 100
+                if small_pct > 20:
                         warnings.append(
                             SafetyWarning(
                                 rule_name=self.rule_name,

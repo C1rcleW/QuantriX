@@ -5,9 +5,16 @@ from __future__ import annotations
 from quantrix.dag.graph import AnalysisDAG, NodeKind
 
 
+def _get_dv_iv(params: dict[str, object]) -> tuple[str, str]:
+    dv = str(params.get("dv", "outcome"))
+    ivs = params.get("ivs")
+    iv = str(ivs[0]) if isinstance(ivs, list) and ivs else str(params.get("iv", "predictor"))
+    return dv, iv
+
+
 def export_r(dag: AnalysisDAG, dataset_name: str = "data") -> str:
     lines = [
-        "# Reproducible R script — Quantrix",
+        "# Reproducible R script - Quantrix",
         "library(haven)",
         "",
         f"# df <- read_sav('{dataset_name}.sav')",
@@ -16,9 +23,8 @@ def export_r(dag: AnalysisDAG, dataset_name: str = "data") -> str:
     ]
     for node in dag.topological_order():
         if node.kind == NodeKind.ANALYSIS:
-            params = node.parameters
-            dv = params.get("dv", "outcome")
-            iv = params.get("iv", "predictor")
+            params = dict(node.parameters)
+            dv, iv = _get_dv_iv(params)
             m = node.method
 
             if m == "independent_ttest":

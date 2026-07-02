@@ -9,16 +9,18 @@ GET    /api/data/{id}/table   — Get paginated data table
 
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 
+from quantrix.dag.tracker import get_tracker
 from quantrix.data.inference.missing_detector import MissingDetector
 from quantrix.data.inference.type_detector import TypeDetector
 from quantrix.data.profile import ProfileGenerator
 from quantrix.data.readers.csv import CsvReader
 from quantrix.data.readers.sav import SpssReader
-from quantrix.server.registry import get_dataset, register_dataset
+from quantrix.server.registry import get_dataset, register_dataset, set_import_node_id
 
 router = APIRouter(prefix="/api/data", tags=["data"])
 
@@ -58,16 +60,21 @@ async def import_file(
     suffix = Path(file.filename).suffix
     reader = _get_reader(suffix)
 
-    tmp_path = Path(file.filename)
+    original_name = Path(file.filename).stem
     content = await file.read()
-    tmp_path.write_bytes(content)
+    with tempfile.NamedTemporaryFile(
+        prefix=f"{original_name}_", suffix=suffix, delete=False
+    ) as tmp:
+        tmp.write(content)
+        tmp_path = tmp.name
 
     try:
-        dataset = reader.read(str(tmp_path))
+        dataset = reader.read(tmp_path)
+        dataset.name = original_name
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Failed to parse {file.filename}: {e}") from e
     finally:
-        tmp_path.unlink(missing_ok=True)
+        Path(tmp_path).unlink(missing_ok=True)
 
     # Run inference pipeline
     if dataset.data is not None:
@@ -75,6 +82,10 @@ async def import_file(
         MissingDetector().analyze(dataset.variables, dataset.data)
 
     dataset_id = register_dataset(dataset)
+
+    tracker = get_tracker()
+    node_id = tracker.record_import(dataset, file.filename)
+    set_import_node_id(dataset_id, node_id)
 
     return {
         "dataset_id": dataset_id,

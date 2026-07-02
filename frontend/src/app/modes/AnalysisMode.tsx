@@ -1,24 +1,51 @@
-/** Analysis mode — question → plan → execute → safety → interpret → report. */
+/** Analysis mode — guided wizard + free text → plan → execute → safety → interpret → report. */
 
 import { useCallback, useState } from "react";
-import type { AnalysisPlan, Interpretation, PlanRecommendation, SafetyReport } from "../../api/client";
-import { generateReport, getAnalysisPlan, getInterpretation, runSafetyCheck } from "../../api/client";
+import type { AnalysisExecutionResult, AnalysisPlan, Interpretation, PlanRecommendation, SafetyReport } from "../../api/client";
+import { executeAnalysis, generateReport, getAnalysisPlan, getAnalysisPlanStructured, getInterpretation, runSafetyCheck } from "../../api/client";
 import { useDataset } from "../App";
+
+type InputMode = "guided" | "free";
+
+interface GoalDef {
+  key: string;
+  label: string;
+  desc: string;
+  needsIv: boolean;
+}
+
+const GOALS: GoalDef[] = [
+  { key: "describe", label: "Describe", desc: "Summarize a single variable", needsIv: false },
+  { key: "compare_groups", label: "Compare Groups", desc: "Compare a variable across groups", needsIv: true },
+  { key: "find_association", label: "Find Association", desc: "Find relationship between variables", needsIv: true },
+  { key: "predict", label: "Predict", desc: "Predict one variable from another", needsIv: true },
+];
+
+function varTypeLabel(t: string): string {
+  const map: Record<string, string> = { continuous: "# (cont.)", ordinal: "~ (ord.)", nominal: "= (cat.)", string: "T (text)" };
+  return map[t] || t;
+}
 
 export function AnalysisMode() {
   const { dataset } = useDataset();
+  const [mode, setMode] = useState<InputMode>("guided");
   const [question, setQuestion] = useState("");
+  const [selectedGoal, setSelectedGoal] = useState<string>("describe");
+  const [dvName, setDvName] = useState<string>("");
+  const [ivName, setIvName] = useState<string>("");
   const [plan, setPlan] = useState<AnalysisPlan | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<PlanRecommendation | null>(null);
   const [safety, setSafety] = useState<SafetyReport | null>(null);
-  const [statResult, setStatResult] = useState<any>(null);
+  const [statResult, setStatResult] = useState<AnalysisExecutionResult | null>(null);
   const [interpretation, setInterpretation] = useState<Interpretation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const hasData = dataset && dataset.datasetId;
+  const goalDef = GOALS.find(g => g.key === selectedGoal) || GOALS[0];
+  const variables = dataset?.variables || [];
 
-  const handleAsk = useCallback(async () => {
+  const handleAskFree = useCallback(async () => {
     if (!question.trim() || !dataset) return;
     setLoading(true); setError(null); setPlan(null); setSafety(null); setStatResult(null); setInterpretation(null); setSelectedMethod(null);
     try {
@@ -30,29 +57,29 @@ export function AnalysisMode() {
     } finally { setLoading(false); }
   }, [question, dataset]);
 
+  const handleAskGuided = useCallback(async () => {
+    if (!dataset) return;
+    if (!dvName && selectedGoal !== "describe") return;
+    setLoading(true); setError(null); setPlan(null); setSafety(null); setStatResult(null); setInterpretation(null); setSelectedMethod(null);
+    try {
+      const ivs = ivName ? [ivName] : [];
+      const result = await getAnalysisPlanStructured(dataset.datasetId, selectedGoal, dvName || null, ivs);
+      setPlan(result);
+      if (result.recommendations.length > 0) setSelectedMethod(result.recommendations[0]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed");
+    } finally { setLoading(false); }
+  }, [dataset, selectedGoal, dvName, ivName]);
+
   const handleSelectAndRun = useCallback(async (rec: PlanRecommendation) => {
     if (!dataset) return;
-    setSelectedMethod(rec); setSafety(null); setStatResult(null); setInterpretation(null);
-
-    // 1. Safety check
+    setSelectedMethod(rec); setSafety(null); setStatResult(null); setInterpretation(null); setError(null);
     try {
       const s = await runSafetyCheck(dataset.datasetId, rec.method_name, rec.matched_variables.dependent, rec.matched_variables.independents);
       setSafety(s);
     } catch { /* optional */ }
-
-    // 2. Execute the actual analysis
     try {
-      const resp = await fetch("/api/analysis/execute", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          dataset_id: dataset.datasetId,
-          method_name: rec.method_name,
-          dependent: rec.matched_variables.dependent,
-          independents: rec.matched_variables.independents,
-        }),
-      });
-      const data = await resp.json();
+      const data = await executeAnalysis(dataset.datasetId, rec.method_name, rec.matched_variables.dependent, rec.matched_variables.independents);
       setStatResult(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Analysis execution failed");
@@ -62,16 +89,13 @@ export function AnalysisMode() {
   const handleInterpret = useCallback(async () => {
     if (!statResult || !selectedMethod) return;
     try {
-      // Build statistics dict from execute result
       const stats: Record<string, unknown> = {
         dv_label: statResult.dv_label || selectedMethod.matched_variables.dependent || "outcome",
         iv_label: statResult.iv_label || (selectedMethod.matched_variables.independents[0] || "predictor"),
       };
-      // Copy all statistics
       if (statResult.statistics && typeof statResult.statistics === "object") {
         Object.assign(stats, statResult.statistics as Record<string, unknown>);
       }
-      // Copy effect sizes
       if (statResult.effect_sizes && typeof statResult.effect_sizes === "object") {
         const es = statResult.effect_sizes as Record<string, unknown>;
         if ("cohens_d" in es) stats.cohens_d = es.cohens_d;
@@ -79,13 +103,10 @@ export function AnalysisMode() {
         if ("eta_squared" in es) stats.eta_squared = es.eta_squared;
         if ("r_squared" in es) stats.r_squared = es.r_squared;
       }
-      // Copy group info
       if (statResult.group_labels) stats.group_labels = statResult.group_labels;
-      // Copy template fields from misc
       if (statResult.misc && typeof statResult.misc === "object") {
         Object.assign(stats, statResult.misc as Record<string, unknown>);
       }
-      // Use computed sig_text and effect_size_text
       if (statResult.sig_text) stats.sig_text = statResult.sig_text;
       if (statResult.effect_size_text) stats.effect_size_text = statResult.effect_size_text;
 
@@ -109,24 +130,93 @@ export function AnalysisMode() {
     }
   }, [interpretation, dataset, selectedMethod]);
 
-  /* ── No dataset loaded ── */
   if (!hasData) {
     return <div style={S.center}><p style={{ color: "#888" }}>No dataset loaded. Switch to <strong>Data</strong> tab and import a file first.</p></div>;
   }
 
+  const resetWizard = () => {
+    setSelectedGoal("describe"); setDvName(""); setIvName("");
+    setPlan(null); setSafety(null); setStatResult(null); setInterpretation(null); setSelectedMethod(null); setError(null);
+  };
+
   return (
     <div style={S.container}>
-      <div style={S.header}><h2 style={{ margin: 0 }}>Research Planner</h2><span style={S.meta}>{dataset.name} ({dataset.nRows} x {dataset.nColumns})</span></div>
-
-      <div style={S.qbox}>
-        <textarea style={S.input} placeholder="What do you want to know? e.g., Does gender affect income?" value={question}
-          onChange={e => setQuestion(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAsk(); } }} rows={2} />
-        <button style={S.askBtn} onClick={handleAsk} disabled={loading || !question.trim()}>{loading ? "..." : "Ask"}</button>
+      <div style={S.header}>
+        <h2 style={{ margin: 0 }}>Research Planner</h2>
+        <span style={S.meta}>{dataset.name} ({dataset.nRows} x {dataset.nColumns})</span>
       </div>
+
+      {/* Mode toggle */}
+      <div style={S.tabRow}>
+        <button style={tabStyle(mode === "guided")} onClick={() => { setMode("guided"); resetWizard(); }}>Guided</button>
+        <button style={tabStyle(mode === "free")} onClick={() => { setMode("free"); resetWizard(); }}>Free Text</button>
+      </div>
+
+      {/* ── Guided Mode ── */}
+      {mode === "guided" && (
+        <div style={S.wizard}>
+          {/* Step 1: Goal */}
+          <div style={S.step}>
+            <div style={S.stepLabel}>1. What do you want to know?</div>
+            <div style={S.goalRow}>
+              {GOALS.map(g => (
+                <button key={g.key} style={goalBtnStyle(selectedGoal === g.key)} onClick={() => { setSelectedGoal(g.key); setDvName(""); setIvName(""); }}>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{g.label}</div>
+                  <div style={{ fontSize: 11, opacity: 0.7 }}>{g.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 2: Variables */}
+          <div style={S.step}>
+            <div style={S.stepLabel}>2. Select variables</div>
+            <div style={S.varRow}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 12, color: "#888", marginBottom: 4 }}>Variable to analyze</div>
+                <select style={S.select} value={dvName} onChange={e => setDvName(e.target.value)}>
+                  <option value="">-- select --</option>
+                  {variables.map(v => (
+                    <option key={v.name} value={v.name}>{v.display_name} {varTypeLabel(v.variable_type)}</option>
+                  ))}
+                </select>
+              </div>
+
+              {goalDef.needsIv && (
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, color: "#888", marginBottom: 4 }}>Group by / Compare with</div>
+                  <select style={S.select} value={ivName} onChange={e => setIvName(e.target.value)}>
+                    <option value="">-- select --</option>
+                    {variables.filter(v => v.name !== dvName).map(v => (
+                      <option key={v.name} value={v.name}>{v.display_name} {varTypeLabel(v.variable_type)}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <button style={S.askBtn}
+            onClick={handleAskGuided}
+            disabled={loading || (selectedGoal !== "describe" && !dvName)}>
+            {loading ? "Analyzing..." : "Ask"}
+          </button>
+        </div>
+      )}
+
+      {/* ── Free Text Mode ── */}
+      {mode === "free" && (
+        <div style={S.qbox}>
+          <textarea style={S.input} placeholder="What do you want to know? e.g., Does gender affect income?" value={question}
+            onChange={e => setQuestion(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAskFree(); } }} rows={2} />
+          <button style={S.askBtn} onClick={handleAskFree} disabled={loading || !question.trim()}>{loading ? "..." : "Ask"}</button>
+        </div>
+      )}
 
       {error && <div style={S.err}>{error}</div>}
 
+      {/* ── Results (shared) ── */}
       {plan && (
         <div>
           <h3 style={S.secTitle}>Recommended ({plan.question_type})</h3>
@@ -145,7 +235,6 @@ export function AnalysisMode() {
 
       {selectedMethod && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
-          {/* Safety panel */}
           <div style={S.panel}>
             <h3 style={S.secTitle}>Safety Check</h3>
             {safety ? (
@@ -157,7 +246,6 @@ export function AnalysisMode() {
             ) : <div style={{ fontSize: 12, color: "#888" }}>Checking...</div>}
           </div>
 
-          {/* Results + Interpret panel */}
           <div style={S.panel}>
             <h3 style={S.secTitle}>Results {statResult && <button style={S.reportBtn} onClick={handleReport}>Report</button>}</h3>
             {statResult ? (
@@ -193,6 +281,13 @@ const S: Record<string, React.CSSProperties> = {
   center: { display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "#888" },
   header: { marginBottom: 16 },
   meta: { fontSize: 13, color: "#888" },
+  tabRow: { display: "flex", gap: 4, marginBottom: 20 },
+  wizard: { marginBottom: 20 },
+  step: { marginBottom: 16 },
+  stepLabel: { fontSize: 13, fontWeight: 600, color: "#555", marginBottom: 8 },
+  goalRow: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 },
+  varRow: { display: "flex", gap: 12 },
+  select: { width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #ddd", borderRadius: 6, background: "#fff", fontFamily: "inherit" },
   qbox: { display: "flex", gap: 8, marginBottom: 16 },
   input: { flex: 1, padding: "10px 14px", fontSize: 15, border: "1px solid #ddd", borderRadius: 8, resize: "none", fontFamily: "inherit" },
   askBtn: { padding: "10px 24px", background: "#1a73e8", color: "#fff", border: "none", borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: "pointer" },
@@ -203,3 +298,19 @@ const S: Record<string, React.CSSProperties> = {
   panel: { padding: 16, border: "1px solid #e0e0e0", borderRadius: 8, background: "#fafafa" },
   reportBtn: { padding: "4px 12px", background: "#34a853", color: "#fff", border: "none", borderRadius: 4, fontSize: 12, cursor: "pointer" },
 };
+
+function tabStyle(active: boolean): React.CSSProperties {
+  return {
+    padding: "6px 16px", border: active ? "2px solid #1a73e8" : "2px solid #e0e0e0",
+    borderRadius: 6, background: active ? "#f0f7ff" : "#fff", color: active ? "#1a73e8" : "#666",
+    fontWeight: active ? 600 : 400, fontSize: 13, cursor: "pointer",
+  };
+}
+
+function goalBtnStyle(active: boolean): React.CSSProperties {
+  return {
+    padding: "10px 12px", border: active ? "2px solid #1a73e8" : "1px solid #e0e0e0",
+    borderRadius: 8, background: active ? "#f0f7ff" : "#fff", cursor: "pointer",
+    textAlign: "left", fontFamily: "inherit",
+  };
+}

@@ -6,7 +6,7 @@ interface Props {
   onImport: (file: File) => void;
 }
 
-const ACCEPTED = ".sav,.zsav,.csv,.tsv,.txt,.xlsx,.dta";
+const ACCEPTED = ".sav,.zsav,.csv,.tsv,.txt";
 
 export function ImportDropzone({ onImport }: Props) {
   const [dragging, setDragging] = useState(false);
@@ -46,7 +46,7 @@ export function ImportDropzone({ onImport }: Props) {
         Drop your data file here, or click to browse
       </p>
       <p style={styles.hint}>
-        Supports SPSS (.sav), CSV, TSV, Excel (.xlsx), Stata (.dta)
+        Supports SPSS (.sav), CSV, TSV, and text files
       </p>
       <input
         ref={inputRef}

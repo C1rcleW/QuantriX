@@ -6,6 +6,15 @@
 
 const BASE = "/api";
 
+async function raiseForStatus(res: Response, fallback: string): Promise<never> {
+  let detail = fallback;
+  try {
+    const body = await res.json();
+    if (typeof body.detail === "string") detail = body.detail;
+  } catch { /* use fallback */ }
+  throw new Error(detail);
+}
+
 export interface VariableSummary {
   name: string;
   label: string;
@@ -72,10 +81,7 @@ export async function importFile(
     body: form,
   });
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || "Import failed");
-  }
+  if (!res.ok) await raiseForStatus(res, "Import failed");
 
   return res.json();
 }
@@ -85,7 +91,7 @@ export async function getDataset(
   datasetId: string
 ): Promise<DatasetSummary> {
   const res = await fetch(`${BASE}/data/${datasetId}`);
-  if (!res.ok) throw new Error("Dataset not found");
+  if (!res.ok) await raiseForStatus(res, "Dataset not found");
   return res.json();
 }
 
@@ -94,7 +100,7 @@ export async function getVariables(
   datasetId: string
 ): Promise<{ dataset_id: string; variables: VariableDetail[] }> {
   const res = await fetch(`${BASE}/data/${datasetId}/variables`);
-  if (!res.ok) throw new Error("Variables not found");
+  if (!res.ok) await raiseForStatus(res, "Variables not found");
   return res.json();
 }
 
@@ -107,7 +113,7 @@ export async function getTable(
   const res = await fetch(
     `${BASE}/data/${datasetId}/table?offset=${offset}&limit=${limit}`
   );
-  if (!res.ok) throw new Error("Table not found");
+  if (!res.ok) await raiseForStatus(res, "Table not found");
   return res.json();
 }
 
@@ -150,6 +156,22 @@ export interface Interpretation {
   limitations: string[];
 }
 
+export interface AnalysisExecutionResult {
+  method_name?: string;
+  method_family?: string;
+  n_samples?: number;
+  statistics?: Record<string, unknown>;
+  effect_sizes?: Record<string, unknown>;
+  tables?: { title?: string; columns?: string[]; rows?: unknown[][] }[];
+  dv_label?: string;
+  iv_label?: string;
+  group_labels?: string[];
+  sig_text?: string;
+  effect_size_text?: string;
+  errors?: string[];
+  misc?: Record<string, unknown>;
+}
+
 /** Get analysis plan from a research question. */
 export async function getAnalysisPlan(
   datasetId: string,
@@ -160,7 +182,23 @@ export async function getAnalysisPlan(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ dataset_id: datasetId, question }),
   });
-  if (!res.ok) throw new Error("Plan failed");
+  if (!res.ok) await raiseForStatus(res, "Plan failed");
+  return res.json();
+}
+
+/** Get analysis plan from explicit goal + variable selections. */
+export async function getAnalysisPlanStructured(
+  datasetId: string,
+  goal: string,
+  dependent: string | null,
+  independents: string[]
+): Promise<AnalysisPlan> {
+  const res = await fetch(`${BASE}/analysis/plan-structured`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ dataset_id: datasetId, goal, dependent, independents }),
+  });
+  if (!res.ok) await raiseForStatus(res, "Plan failed");
   return res.json();
 }
 
@@ -181,7 +219,7 @@ export async function runSafetyCheck(
       independents,
     }),
   });
-  if (!res.ok) throw new Error("Safety check failed");
+  if (!res.ok) await raiseForStatus(res, "Safety check failed");
   return res.json();
 }
 
@@ -195,7 +233,7 @@ export async function getInterpretation(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ method_name: methodName, statistics }),
   });
-  if (!res.ok) throw new Error("Interpretation failed");
+  if (!res.ok) await raiseForStatus(res, "Interpretation failed");
   return res.json();
 }
 
@@ -210,7 +248,7 @@ export async function generateReport(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title, sections, dataset_info: datasetInfo }),
   });
-  if (!res.ok) throw new Error("Report generation failed");
+  if (!res.ok) await raiseForStatus(res, "Report generation failed");
   return res.json();
 }
 
@@ -220,12 +258,18 @@ export async function executeAnalysis(
   methodName: string,
   dependent: string | null,
   independents: string[]
-): Promise<Record<string, unknown>> {
+): Promise<AnalysisExecutionResult> {
   const res = await fetch(`${BASE}/analysis/execute`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ dataset_id: datasetId, method_name: methodName, dependent, independents }),
   });
-  if (!res.ok) throw new Error("Analysis execution failed");
-  return res.json();
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const detail = typeof err.detail === "string" ? err.detail : "Analysis execution failed";
+    throw new Error(detail);
+  }
+  const data = (await res.json()) as AnalysisExecutionResult;
+  if (data.errors?.length) throw new Error(data.errors.join("; "));
+  return data;
 }

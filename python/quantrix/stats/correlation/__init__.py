@@ -1,6 +1,5 @@
 """Correlation: Pearson, Spearman, Chi-square."""
 
-import polars as pl
 from scipy import stats as sps
 
 from quantrix.stats.base import BaseStatMethod, StatResult
@@ -107,6 +106,13 @@ class ChiSquare(BaseStatMethod):
                 method_family=self.method_family,
                 n_samples=0,
                 errors=["Two variables required"],
+            )
+        if dv.is_continuous or ivs[0].is_continuous:
+            return StatResult(
+                method_name=self.method_name,
+                method_family=self.method_family,
+                n_samples=0,
+                errors=["Chi-square requires categorical variables"],
             )
         c1 = self._get_column(dataset, dv)
         c2 = self._get_column(dataset, ivs[0])
