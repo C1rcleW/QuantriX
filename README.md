@@ -1,4 +1,4 @@
-# Quantrix v0.1.0 (bulind）
+# Quantrix v0.1.0 (building）
 
 **AI-Native Quantitative Research Platform for Social Sciences**
 **面向社会科学研究的 AI 原生定量分析平台**
@@ -284,7 +284,7 @@ GNU Affero General Public License v3.0 -- see [LICENSE](./LICENSE).
 @software{quantrix2026,
   author = {Quantrix Contributors},
   title = {Quantrix: AI-Native Quantitative Research Platform for Social Sciences},
-  year = {2025},
+  year = {2026},
   version = {0.1.0},
   url = {https://github.com/C1rcleW/QuantriX}
 }
