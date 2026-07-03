@@ -1,4 +1,4 @@
-# Quantrix v0.1.0 (building）
+# Quantrix v0.1.0
 
 **AI-Native Quantitative Research Platform for Social Sciences**
 **面向社会科学研究的 AI 原生定量分析平台**
@@ -45,6 +45,7 @@ CSV/SAV -> Auto-detect types -> Ask a question -> Method recommendation
 | Execute | F(2,147) = 119.27, p < .001 |
 | Safety | Checks normality, homogeneity, sample size, outliers |
 | Interpret | "The comparison of SepalLength across groups of Species was statistically significant." |
+| Visualize | Histogram with KDE, box plots, scatter with regression line, grouped bar charts |
 | Report | One-click APA-format report (Markdown + HTML) |
 | Export | Python, R, or SPSS syntax reproduction code |
 
@@ -56,18 +57,18 @@ CSV/SAV -> Auto-detect types -> Ask a question -> Method recommendation
 
 ### Statistics Methods (10)
 
-| Method | Backend |
-|---|---|
-| Descriptive Statistics | polars |
-| Frequency Analysis | polars |
-| Independent Samples t-test | scipy.stats.ttest_ind |
-| One-Way ANOVA | scipy.stats.f_oneway |
-| Mann-Whitney U | scipy.stats.mannwhitneyu |
-| Kruskal-Wallis H | scipy.stats.kruskal |
-| Pearson Correlation | scipy.stats.pearsonr |
-| Spearman Correlation | scipy.stats.spearmanr |
-| Chi-Square Test | scipy.stats.chi2_contingency |
-| Linear Regression | statsmodels.OLS |
+| Method | Backend | Chart |
+|---|---|---|
+| Descriptive Statistics | polars | histogram + KDE |
+| Frequency Analysis | polars | bar chart |
+| Independent Samples t-test | scipy.stats.ttest_ind | box plot + grouped bar |
+| One-Way ANOVA | scipy.stats.f_oneway | box plot + grouped bar |
+| Mann-Whitney U | scipy.stats.mannwhitneyu | box plot |
+| Kruskal-Wallis H | scipy.stats.kruskal | box plot |
+| Pearson Correlation | scipy.stats.pearsonr | scatter + regression line |
+| Spearman Correlation | scipy.stats.spearmanr | scatter |
+| Chi-Square Test | scipy.stats.chi2_contingency | bar chart |
+| Linear Regression | statsmodels.OLS | scatter + fitted line + CI |
 
 ### Known Limitations
 
@@ -78,7 +79,7 @@ CSV/SAV -> Auto-detect types -> Ask a question -> Method recommendation
 
 ### Not Yet Built
 
-SEM, HLM/MLM, EFA/CFA, Time Series, Bayesian Statistics, Visualization (charts), Plugin system, Multi-user support.
+SEM, HLM/MLM, EFA/CFA, Time Series, Bayesian Statistics, Plugin system, Multi-user support.
 
 ---
 
@@ -109,6 +110,7 @@ CSV/SAV -> 自动识别类型 -> 提出问题 -> 方法推荐
 | 执行 | F(2,147) = 119.27, p < .001 |
 | 安全 | 检查正态性、方差齐性、样本量、离群值 |
 | 解读 | "不同 Species 组间的 SepalLength 存在统计学显著差异。" |
+| 可视化 | 直方图+密度曲线、箱线图、散点+回归线、分组柱状图 |
 | 报告 | 一键生成 APA 格式报告（Markdown + HTML） |
 | 导出 | Python / R / SPSS 语法复现代码 |
 
@@ -120,18 +122,18 @@ CSV/SAV -> 自动识别类型 -> 提出问题 -> 方法推荐
 
 ### 统计方法（10 种）
 
-| 方法 | 实现 |
-|---|---|
-| 描述统计 | polars |
-| 频次分析 | polars |
-| 独立样本 t 检验 | scipy.stats.ttest_ind |
-| 单因素方差分析 | scipy.stats.f_oneway |
-| Mann-Whitney U 检验 | scipy.stats.mannwhitneyu |
-| Kruskal-Wallis H 检验 | scipy.stats.kruskal |
-| Pearson 相关 | scipy.stats.pearsonr |
-| Spearman 相关 | scipy.stats.spearmanr |
-| 卡方检验 | scipy.stats.chi2_contingency |
-| 线性回归 | statsmodels.OLS |
+| 方法 | 实现 | 图表 |
+|---|---|---|
+| 描述统计 | polars | 直方图 + 密度曲线 |
+| 频次分析 | polars | 柱状图 |
+| 独立样本 t 检验 | scipy.stats.ttest_ind | 箱线图 + 分组柱状图 |
+| 单因素方差分析 | scipy.stats.f_oneway | 箱线图 + 分组柱状图 |
+| Mann-Whitney U 检验 | scipy.stats.mannwhitneyu | 箱线图 |
+| Kruskal-Wallis H 检验 | scipy.stats.kruskal | 箱线图 |
+| Pearson 相关 | scipy.stats.pearsonr | 散点图 + 回归线 |
+| Spearman 相关 | scipy.stats.spearmanr | 散点图 |
+| 卡方检验 | scipy.stats.chi2_contingency | 柱状图 |
+| 线性回归 | statsmodels.OLS | 散点 + 拟合线 + 置信带 |
 
 ### 已知限制
 
@@ -142,7 +144,7 @@ CSV/SAV -> 自动识别类型 -> 提出问题 -> 方法推荐
 
 ### 尚未构建
 
-结构方程模型(SEM)、多层线性模型(HLM/MLM)、因子分析(EFA/CFA)、时间序列、贝叶斯统计、可视化引擎（图表）、插件系统、多用户协作。
+结构方程模型(SEM)、多层线性模型(HLM/MLM)、因子分析(EFA/CFA)、时间序列、贝叶斯统计、插件系统、多用户协作。
 
 ---
 
@@ -198,6 +200,8 @@ npm run dev                     # http://127.0.0.1:5173
 |         Statistics Engine / 统计引擎 (10 methods)      |
 |              scipy + statsmodels + polars              |
 +-----------------------------------------------------+
+|          Viz / 可视化 (6 chart types, recharts)        |
++-----------------------------------------------------+
 |        Data Layer / 数据层 (SAV/CSV -> Polars)         |
 +-----------------------------------------------------+
 ```
@@ -229,6 +233,7 @@ QuantriX/
 │   │   ├── core/           # Dataset, Metadata, Protocols
 │   │   ├── data/           # Readers (CSV/SAV), TypeDetector, Profile
 │   │   ├── stats/          # 10 statistical methods / 10 种统计方法
+│   │   ├── viz/            # Chart data generators / 图表数据生成
 │   │   ├── safety/         # 6 safety rules / 6 条安全规则
 │   │   ├── planner/        # Question parser + decision tree
 │   │   ├── interpreter/    # Result interpretation engine
