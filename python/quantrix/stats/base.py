@@ -35,6 +35,7 @@ class StatResult:
 
     errors: list[str] = field(default_factory=list)
     misc: dict[str, object] = field(default_factory=dict)
+    charts: list[dict] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -51,6 +52,7 @@ class StatResult:
             "effect_size_text": self.effect_size_text,
             "errors": self.errors,
             "misc": self.misc,
+            "charts": self.charts,
         }
 
 

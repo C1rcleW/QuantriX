@@ -3,6 +3,7 @@
 from scipy import stats as sps
 
 from quantrix.stats.base import BaseStatMethod, StatResult
+from quantrix.viz import bar, scatter
 
 
 class PearsonCorrelation(BaseStatMethod):
@@ -40,6 +41,14 @@ class PearsonCorrelation(BaseStatMethod):
         )
         direction = "positive" if r >= 0 else "negative"
         sig = self._format_p(p)
+        x_list = x.tolist()
+        y_list = y.tolist()
+        x_mean = float(x.mean()); y_mean = float(y.mean())
+        sx = float(x.std(ddof=1)); sy = float(y.std(ddof=1))
+        slope = r * sy / sx if sx > 0 else 0
+        intercept = y_mean - slope * x_mean
+        x_range = [float(x.min()), float(x.max())]
+        line_y = [intercept + slope * xr for xr in x_range]
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
@@ -51,6 +60,10 @@ class PearsonCorrelation(BaseStatMethod):
             sig_text=f"r({n - 2})={r:.3f}, {sig}",
             effect_size_text=f"{strength} {direction} correlation",
             misc={"r": r, "df": n - 2, "n": n, "strength": strength, "direction": direction},
+            charts=[scatter(x_list, y_list,
+                f"{dv.display_name} vs {ivs[0].display_name}",
+                ivs[0].display_name, dv.display_name,
+                line_x=x_range, line_y=line_y)],
         )
 
 
@@ -92,6 +105,9 @@ class SpearmanCorrelation(BaseStatMethod):
             sig_text=f"rho={rho:.3f}, {sig}",
             effect_size_text="",
             misc={"rho": rho, "n": n},
+            charts=[scatter(x.tolist(), y.tolist(),
+                f"{dv.display_name} vs {ivs[0].display_name}",
+                ivs[0].display_name, dv.display_name)],
         )
 
 
@@ -137,6 +153,8 @@ class ChiSquare(BaseStatMethod):
         cramer = (chi2 / (n * (min(observed.shape) - 1))) ** 0.5 if min(observed.shape) > 1 else 0
         sig = self._format_p(p)
         rows = [[str(r[0])] + [str(v) for v in r[1:]] for r in pivot.iter_rows()]
+        cats = pivot.columns[1:]
+        series = [{"name": str(row[0]), "data": [int(v) if str(v).isdigit() else 0 for v in row[1:]]} for row in rows]
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
@@ -155,4 +173,6 @@ class ChiSquare(BaseStatMethod):
             sig_text=f"chisq({dof})={chi2:.2f}, {sig}",
             effect_size_text=f"Cramer V={cramer:.3f}",
             misc={"n": n},
+            charts=[bar([str(c) for c in cats], [int(sum(s["data"])) if isinstance(s["data"], list) else 0 for s in series],
+                f"{dv.display_name} x {ivs[0].display_name}", ivs[0].display_name, "Count")],
         )

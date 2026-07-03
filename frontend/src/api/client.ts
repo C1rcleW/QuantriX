@@ -170,6 +170,7 @@ export interface AnalysisExecutionResult {
   effect_size_text?: string;
   errors?: string[];
   misc?: Record<string, unknown>;
+  charts?: Record<string, unknown>[];
 }
 
 /** Get analysis plan from a research question. */

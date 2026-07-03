@@ -4,6 +4,7 @@ import polars as pl
 import statsmodels.api as sm
 
 from quantrix.stats.base import BaseStatMethod, StatResult
+from quantrix.viz import scatter
 
 
 class LinearRegression(BaseStatMethod):
@@ -76,6 +77,19 @@ class LinearRegression(BaseStatMethod):
                 ]
             )
         names = ", ".join(iv.display_name for iv in ivs)
+        # Build scatter chart with regression line
+        x_raw = preds[0].filter(mask).to_numpy().tolist()
+        scores = sorted(set(x_raw))
+        if len(scores) > 100:
+            step = len(scores) // 100
+            scores = scores[::step]
+        X_pred = sm.add_constant([[s] for s in scores])
+        pred = model.get_prediction(X_pred)
+        pred_summary = pred.summary_frame(alpha=0.05)
+        line_x = scores
+        line_y = [float(v) for v in pred_summary["mean"].values]
+        ci_lower = [float(v) for v in pred_summary["obs_ci_lower"].values]
+        ci_upper = [float(v) for v in pred_summary["obs_ci_upper"].values]
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
@@ -111,4 +125,9 @@ class LinearRegression(BaseStatMethod):
                 "predictor_list": names,
                 "coefficient_table": "",
             },
+            charts=[scatter(x_raw, y.tolist(),
+                f"{dv.display_name} vs {ivs[0].display_name}",
+                ivs[0].display_name, dv.display_name,
+                line_x=line_x, line_y=line_y,
+                ci_upper=ci_upper, ci_lower=ci_lower)],
         )

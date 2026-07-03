@@ -3,6 +3,7 @@
 from scipy import stats as sps
 
 from quantrix.stats.base import BaseStatMethod, StatResult
+from quantrix.viz import box_plot, grouped_bar
 
 
 class IndependentTTest(BaseStatMethod):
@@ -37,13 +38,19 @@ class IndependentTTest(BaseStatMethod):
         d = self._cohens_d(m1, m2, s1, s2, n1, n2)
         sig = self._format_p(p)
         df_val = n1 + n2 - 2
+        g1_name, g2_name = str(groups[0]), str(groups[1])
+        bp_data = {g1_name: g1.tolist(), g2_name: g2.tolist()}
+        gb_data = [
+            {"name": "Mean", "data": [round(float(m1), 2), round(float(m2), 2)]},
+            {"name": "SD", "data": [round(float(s1), 2), round(float(s2), 2)]},
+        ]
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
             n_samples=n1 + n2,
             dv_label=dv.display_name,
             iv_label=ivs[0].display_name,
-            group_labels=[str(groups[0]), str(groups[1])],
+            group_labels=[g1_name, g2_name],
             statistics={
                 "t_stat": t,
                 "p_value": p,
@@ -69,6 +76,10 @@ class IndependentTTest(BaseStatMethod):
             sig_text=f"t({df_val})={t:.3f}, {sig}",
             effect_size_text=f"Cohen's d={d:.3f}",
             misc={"means": [m1, m2], "sds": [s1, s2], "ns": [n1, n2]},
+            charts=[
+                box_plot(bp_data, f"{dv.display_name} by {ivs[0].display_name}", ivs[0].display_name, dv.display_name),
+                grouped_bar([g1_name, g2_name], gb_data, f"Mean {dv.display_name} by {ivs[0].display_name}", ivs[0].display_name, dv.display_name),
+            ],
         )
 
 
@@ -108,6 +119,12 @@ class OneWayANOVA(BaseStatMethod):
             ]
             for i in range(len(groups))
         ]
+        bp_data = {str(groups[i]): group_data[i].tolist() for i in range(len(groups))}
+        gb_cats = [str(g) for g in groups]
+        gb_data = [
+            {"name": "Mean", "data": [round(float(gd.mean()), 2) for gd in group_data]},
+            {"name": "SD", "data": [round(float(gd.std(ddof=1)), 2) for gd in group_data]},
+        ]
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
@@ -131,6 +148,10 @@ class OneWayANOVA(BaseStatMethod):
             sig_text=f"F({len(groups) - 1},{n_total - len(groups)})={f_stat:.3f}, {sig}",
             effect_size_text="",
             misc={"n_groups": len(groups), "group_table": ""},
+            charts=[
+                box_plot(bp_data, f"{dv.display_name} by {ivs[0].display_name}", ivs[0].display_name, dv.display_name),
+                grouped_bar(gb_cats, gb_data, f"Mean {dv.display_name} by {ivs[0].display_name}", ivs[0].display_name, dv.display_name),
+            ],
         )
 
 
@@ -160,16 +181,19 @@ class MannWhitney(BaseStatMethod):
         g1 = col.filter(mask & (gc == groups[0])).to_numpy()
         g2 = col.filter(mask & (gc == groups[1])).to_numpy()
         u, p = sps.mannwhitneyu(g1, g2, alternative="two-sided")
+        g1_name, g2_name = str(groups[0]), str(groups[1])
+        bp_data = {g1_name: g1.tolist(), g2_name: g2.tolist()}
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
             n_samples=len(g1) + len(g2),
             dv_label=dv.display_name,
             iv_label=ivs[0].display_name,
-            group_labels=[str(groups[0]), str(groups[1])],
+            group_labels=[g1_name, g2_name],
             statistics={"u_stat": u, "p_value": p, "n1": len(g1), "n2": len(g2)},
             sig_text=f"U={u:.1f}, {self._format_p(p)}",
             effect_size_text="",
+            charts=[box_plot(bp_data, f"{dv.display_name} by {ivs[0].display_name}", ivs[0].display_name, dv.display_name)],
         )
 
 
@@ -198,6 +222,7 @@ class KruskalWallis(BaseStatMethod):
                 errors=["Need >=2 groups"],
             )
         h, p = sps.kruskal(*group_data)
+        bp_data = {str(groups[i]): group_data[i].tolist() for i in range(len(groups))}
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
@@ -208,4 +233,5 @@ class KruskalWallis(BaseStatMethod):
             sig_text=f"H({len(groups) - 1})={h:.3f}, {self._format_p(p)}",
             effect_size_text="",
             misc={"n_groups": len(groups)},
+            charts=[box_plot(bp_data, f"{dv.display_name} by {ivs[0].display_name}", ivs[0].display_name, dv.display_name)],
         )

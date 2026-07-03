@@ -1,6 +1,7 @@
 """Descriptive statistics."""
 
 from quantrix.stats.base import BaseStatMethod, StatResult
+from quantrix.viz import bar, histogram
 
 
 class Frequencies(BaseStatMethod):
@@ -27,6 +28,8 @@ class Frequencies(BaseStatMethod):
             for r in freq.iter_rows()
         ]
         cat_sum = ", ".join(f"{r[0]} (n={r[1]}, {r[2]}%)" for r in rows[:8])
+        cats = [str(r[0]) for r in rows[:12]]
+        vals = [float(r[1]) for r in rows[:12]]
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
@@ -54,6 +57,7 @@ class Frequencies(BaseStatMethod):
                 "n_categories": n_cat,
                 "n": n_total,
             },
+            charts=[bar(cats, vals, f"Frequency of {dv.display_name}", dv.display_name, "Count")],
         )
 
 
@@ -98,6 +102,7 @@ class Descriptives(BaseStatMethod):
             ["Q3", round(q3, 2)],
             ["Max", round(mx, 2)],
         ]
+        raw_values = valid.to_list()
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,
@@ -135,4 +140,5 @@ class Descriptives(BaseStatMethod):
                 "skewness_text": sk_txt,
                 "missing_pct": round((len(col) - n) / len(col) * 100, 1) if len(col) > 0 else 0,
             },
+            charts=[histogram(raw_values, f"Distribution of {dv.display_name}", dv.display_name)],
         )

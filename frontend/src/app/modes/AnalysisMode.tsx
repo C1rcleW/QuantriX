@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import type { AnalysisExecutionResult, AnalysisPlan, Interpretation, PlanRecommendation, SafetyReport } from "../../api/client";
 import { executeAnalysis, generateReport, getAnalysisPlan, getAnalysisPlanStructured, getInterpretation, runSafetyCheck } from "../../api/client";
+import { ChartPanel } from "../../features/charts/ChartPanel";
 import { useDataset } from "../App";
 
 type InputMode = "guided" | "free";
@@ -265,6 +266,7 @@ export function AnalysisMode() {
                 ) : (
                   <button style={{ padding: "6px 14px", background: "#1a73e8", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13 }} onClick={handleInterpret}>Explain Results</button>
                 )}
+                {statResult.charts && <ChartPanel charts={statResult.charts as any[]} />}
               </div>
             ) : (
               <div style={{ fontSize: 12, color: "#888" }}>Select a method above to run analysis.</div>
