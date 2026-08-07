@@ -11,7 +11,7 @@
 Quantrix is an open-source academic infrastructure for social science research. 
 From data to paper, one straight line.
 
-Quantrix 是一个面向社会科学研究的开源学术基础设施。从数据到论文，一条直线。
+Quantrix 是一个面向社会科学研究的开源学术基础设施。从数据到论文，一路畅通。
 
 > Pre-alpha. Core pipeline works end-to-end. GUI is functional but rough.
 > 预发布阶段。核心管线端到端可用，GUI 功能正常但较为粗糙。
