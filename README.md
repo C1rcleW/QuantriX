@@ -1,150 +1,147 @@
 # Quantrix v0.1.0
 
-**AI-Native Quantitative Research Platform for Social Sciences**
-**面向社会科学研究的 AI 原生定量分析平台**
+**A quantitative research platform for the social sciences**
+**面向社会科学研究的定量分析平台**
 
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Tests](https://img.shields.io/badge/tests-160%20passed-green)]()
+[![CI](https://github.com/C1rcleW/QuantriX/actions/workflows/ci.yml/badge.svg)](https://github.com/C1rcleW/QuantriX/actions/workflows/ci.yml)
 [![Status](https://img.shields.io/badge/status-pre--alpha-orange)]()
 
-Quantrix is an open-source academic infrastructure for social science research. 
-From data to paper, one straight line. 
+Quantrix turns a dataset into a guided analysis: import data, choose a research goal and variables, run a statistical method, check assumptions, read an interpretation, and generate a report. The core analysis is deterministic and does not require an LLM.
 
-Quantrix 是一个面向社会科学研究的开源学术基础设施。从数据到论文，一路畅通。
-
-> Pre-alpha. Core pipeline works end-to-end. GUI is functional but rough.
-> 预发布阶段。核心管线端到端可用，GUI 功能正常但较为粗糙。
+> Pre-alpha. The main analysis workflow works end-to-end; the GUI is functional but still rough.
+> 预发布阶段。核心分析流程端到端可用；GUI 功能可用，但仍较粗糙。
 
 ---
 
 ## English
 
-### Why Quantrix?
+### What it does
 
-Social science researchers face three barriers:
+- Imports CSV, TSV, TXT, and SPSS SAV/ZSAV files.
+- Detects variable types, missing values, and basic distributions.
+- Supports two ways to ask a question: **Guided** (goal + variable dropdowns) or **Free Text** (keyword-based question parsing).
+- Runs 10 statistical methods and renders the corresponding charts in the browser.
+- Checks statistical assumptions before execution. Errors block the analysis; warnings are shown to the user.
+- Produces a template-based interpretation and a Markdown/HTML report for the current analysis.
+- Tracks imports and analyses in a provenance graph. Python/R/SPSS code export is available through the API.
 
-1. **Statistical anxiety** -- knowing *which* method to use, not *how* to click
-2. **Repetitive workflows** -- hundreds of menu clicks in SPSS for every paper
-3. **Reproducibility gaps** -- copy-paste from SPSS output to Word, lose the trail
+### Analysis modes
 
-Quantrix replaces that with: **import data -> ask a question -> get results with interpretation -> export reproducible code**.
+**Guided (recommended)** — choose one of four goals:
 
-### What It Does
-
-```
-CSV/SAV -> Auto-detect types -> Ask a question -> Method recommendation
-       -> Run analysis -> Safety check -> Interpretation -> Report -> Export Python/R/SPSS
-```
-
-| Step | Example |
+| Goal | Example |
 |---|---|
-| Import | Upload `iris.csv` -> auto-detects 4 continuous + 1 nominal variable |
-| Ask | Select "Compare Groups" -> pick SepalLength ~ Species from dropdowns |
-| Plan | Recommends One-Way ANOVA (95% confidence) + Kruskal-Wallis as alternative |
-| Execute | F(2,147) = 119.27, p < .001 |
-| Safety | Checks normality, homogeneity, sample size, outliers |
-| Interpret | "The comparison of SepalLength across groups of Species was statistically significant." |
-| Visualize | Histogram with KDE, box plots, scatter with regression line, grouped bar charts |
-| Report | One-click APA-format report (Markdown + HTML) |
-| Export | Python, R, or SPSS syntax reproduction code |
+| Describe | Summarize the distribution of a variable |
+| Compare Groups | Compare a continuous outcome across groups |
+| Find Association | Measure the relationship between two variables |
+| Predict | Model a continuous outcome from one or more predictors |
 
-### Analysis Modes
+**Free Text** — type a question such as “Does education affect income?”. The parser is keyword-based; Guided mode is more reliable for complex designs.
 
-**Guided (default)** -- No natural language required. Select your goal (Describe / Compare Groups / Find Association / Predict), pick variables from dropdowns, zero ambiguity.
+If a statistically appropriate method is not implemented, the planner shows an explicit note with the closest available alternatives instead of silently returning nothing.
 
-**Free Text** -- Type a research question (e.g., "Does education affect income?"). Keyword-based NLP. Works for simple patterns.
+### Statistical methods
 
-### Statistics Methods (10)
-
-| Method | Backend | Chart |
+| Method | Use | Chart |
 |---|---|---|
-| Descriptive Statistics | polars | histogram + KDE |
-| Frequency Analysis | polars | bar chart |
-| Independent Samples t-test | scipy.stats.ttest_ind | box plot + grouped bar |
-| One-Way ANOVA | scipy.stats.f_oneway | box plot + grouped bar |
-| Mann-Whitney U | scipy.stats.mannwhitneyu | box plot |
-| Kruskal-Wallis H | scipy.stats.kruskal | box plot |
-| Pearson Correlation | scipy.stats.pearsonr | scatter + regression line |
-| Spearman Correlation | scipy.stats.spearmanr | scatter |
-| Chi-Square Test | scipy.stats.chi2_contingency | bar chart |
-| Linear Regression | statsmodels.OLS | scatter + fitted line + CI |
+| Descriptive Statistics | Mean, SD, median, quartiles, range | Histogram |
+| Frequency Analysis | Counts and percentages for categories | Bar chart |
+| Independent Samples t-test | Compare a continuous outcome between 2 groups | Box plot + grouped bar |
+| One-Way ANOVA | Compare a continuous outcome across 3+ groups | Box plot + grouped bar |
+| Mann-Whitney U | Nonparametric comparison of 2 groups | Box plot |
+| Kruskal-Wallis H | Nonparametric comparison of 3+ groups | Box plot |
+| Pearson Correlation | Linear association between two continuous variables | Scatter + fitted line |
+| Spearman Correlation | Monotonic association | Scatter |
+| Chi-Square Test | Association between categorical variables | Bar chart |
+| Linear Regression | Continuous outcome prediction | Scatter/line, box, or fitted-vs-observed depending on predictors |
 
-### Known Limitations
+Linear regression supports categorical predictors through dummy coding, and the engine supports multiple predictors. The guided UI currently selects one dependent and one independent variable.
 
-- Free-text parser is keyword-based. Use Guided mode for complex questions.
-- ANOVA eta-squared not yet computed.
-- No post-hoc tests (Tukey HSD).
-- No dark mode, no mobile support, no Electron packaging.
+### Safety, interpretation, and reporting
 
-### Not Yet Built
+- Six checks run before an analysis: variable-type compatibility, sample size, normality (skewness/kurtosis heuristic), homogeneity of variance (SD ratio heuristic), outliers (IQR), and multiple-comparison reminders.
+- Safety errors block execution; warnings are advisory.
+- Interpretations are generated from deterministic templates for all 10 methods.
+- Reports are generated for the current analysis as Markdown and HTML; the GUI currently opens the Markdown version.
 
-SEM, HLM/MLM, EFA/CFA, Time Series, Bayesian Statistics, Plugin system, Multi-user support.
+### Current limitations
+
+- Free-text parsing is keyword-based; use Guided mode for complex questions.
+- No post-hoc tests, eta-squared, logistic regression, or crosstabulation. The planner explains these gaps when relevant.
+- SPSS value labels are loaded, but result tables and charts currently show raw values.
+- Reports cover the current analysis only; there is no multi-analysis document or chart embedding.
+- The GUI does not yet expose the provenance graph or code export; these are available through the API.
+- The guided UI selects one independent variable; multiple-predictor regression is available through the API.
+- Datasets are held in memory for the current server process; there are no user accounts or multi-user support.
+- The core is deterministic and does not include an LLM or agent layer.
+- No dark mode, mobile layout, or desktop packaging.
 
 ---
 
 ## 中文
 
-### 为什么用 Quantrix？
-
-社会科学研究者面临三大障碍：
-
-1. **统计焦虑** —— 知道*该用什么方法*，但不知道*怎么操作*
-2. **重复劳动** —— 每篇论文在 SPSS 里点几百次菜单
-3. **可复现性断档** —— 从 SPSS 复制粘贴到 Word，丢失分析过程
-
-Quantrix 的目标：**导入数据 -> 提出问题 -> 获得结果与解读 -> 导出可复现代码**。
-
 ### 能做什么
 
-```
-CSV/SAV -> 自动识别类型 -> 提出问题 -> 方法推荐
-       -> 执行分析 -> 安全检测 -> 结果解读 -> 生成报告 -> 导出 Python/R/SPSS 代码
-```
-
-| 步骤 | 示例 |
-|---|---|
-| 导入 | 上传 `iris.csv` -> 自动识别 4 个连续变量 + 1 个分类变量 |
-| 提问 | 选"比较组间差异" -> 下拉框选择 SepalLength ~ Species |
-| 规划 | 推荐单因素方差分析（95% 置信度）+ Kruskal-Wallis 备选 |
-| 执行 | F(2,147) = 119.27, p < .001 |
-| 安全 | 检查正态性、方差齐性、样本量、离群值 |
-| 解读 | "不同 Species 组间的 SepalLength 存在统计学显著差异。" |
-| 可视化 | 直方图+密度曲线、箱线图、散点+回归线、分组柱状图 |
-| 报告 | 一键生成 APA 格式报告（Markdown + HTML） |
-| 导出 | Python / R / SPSS 语法复现代码 |
+- 导入 CSV、TSV、TXT 和 SPSS SAV/ZSAV 文件。
+- 自动识别变量类型、缺失值和基本分布。
+- 两种提问方式：**引导模式**（选择目标 + 下拉框选择变量）或 **自由文本**（基于关键词的问题解析）。
+- 运行 10 种统计方法，并在浏览器中绘制对应图表。
+- 执行前进行统计假设检查：error 会阻断分析，warning 会提示给研究者。
+- 生成基于模板的结果解读，以及当前分析的 Markdown/HTML 报告。
+- 在溯源图中记录导入与分析步骤；可通过 API 导出 Python/R/SPSS 复现代码。
 
 ### 两种分析模式
 
-**引导模式（默认）** -- 无需自然语言。选择研究目标（描述/比较组间差异/查找关联/预测），从下拉框选择变量，零歧义。
+**引导模式（推荐）**——四种研究目标：
 
-**自由文本模式** -- 输入研究问题（如"教育程度是否影响收入？"）。基于关键词 NLP，处理简单句式。
+| 目标 | 示例 |
+|---|---|
+| 描述 | 概括一个变量的分布 |
+| 比较组间差异 | 比较连续变量在不同组之间的差异 |
+| 查找关联 | 衡量两个变量之间的关系 |
+| 预测 | 用一个或多个预测变量建模连续结果 |
 
-### 统计方法（10 种）
+**自由文本模式**——输入“教育程度是否影响收入？”这类问题。解析基于关键词；复杂设计建议使用引导模式。
 
-| 方法 | 实现 | 图表 |
+如果统计上合适的方法尚未实现，规划器会明确说明，并给出当前可用的替代方法，而不是静默返回空结果。
+
+### 统计方法
+
+| 方法 | 用途 | 图表 |
 |---|---|---|
-| 描述统计 | polars | 直方图 + 密度曲线 |
-| 频次分析 | polars | 柱状图 |
-| 独立样本 t 检验 | scipy.stats.ttest_ind | 箱线图 + 分组柱状图 |
-| 单因素方差分析 | scipy.stats.f_oneway | 箱线图 + 分组柱状图 |
-| Mann-Whitney U 检验 | scipy.stats.mannwhitneyu | 箱线图 |
-| Kruskal-Wallis H 检验 | scipy.stats.kruskal | 箱线图 |
-| Pearson 相关 | scipy.stats.pearsonr | 散点图 + 回归线 |
-| Spearman 相关 | scipy.stats.spearmanr | 散点图 |
-| 卡方检验 | scipy.stats.chi2_contingency | 柱状图 |
-| 线性回归 | statsmodels.OLS | 散点 + 拟合线 + 置信带 |
+| 描述统计 | 均值、标准差、中位数、四分位数、范围 | 直方图 |
+| 频次分析 | 分类变量的频数与百分比 | 柱状图 |
+| 独立样本 t 检验 | 比较两组连续结果 | 箱线图 + 分组柱状图 |
+| 单因素方差分析 | 比较三组及以上连续结果 | 箱线图 + 分组柱状图 |
+| Mann-Whitney U | 两组非参数比较 | 箱线图 |
+| Kruskal-Wallis H | 三组及以上非参数比较 | 箱线图 |
+| Pearson 相关 | 两个连续变量的线性关联 | 散点图 + 拟合线 |
+| Spearman 相关 | 单调关联 | 散点图 |
+| 卡方检验 | 分类变量之间的关联 | 柱状图 |
+| 线性回归 | 连续结果预测 | 散点/拟合线、箱线图或拟合值-观察值图 |
 
-### 已知限制
+线性回归支持分类预测变量（自动哑变量编码），统计引擎支持多个预测变量；引导界面当前选择一个因变量和一个自变量。
 
-- 自由文本解析为关键词匹配。复杂问题请使用引导模式。
-- 尚未计算方差分析效应量（eta-squared）。
-- 无事后检验（Tukey HSD）。
-- 无暗色模式、无移动端支持、无 Electron 打包。
+### 安全、解释与报告
 
-### 尚未构建
+- 分析前运行 6 项检查：变量类型匹配、样本量、正态性（偏度/峰度启发式）、方差齐性（标准差比值启发式）、离群值（IQR）和多重比较提醒。
+- 安全 error 会阻断执行；warning 仅作提示。
+- 10 种方法均有确定性的模板化解读。
+- 报告针对当前分析生成 Markdown 和 HTML；GUI 当前打开 Markdown 版本。
 
-结构方程模型(SEM)、多层线性模型(HLM/MLM)、因子分析(EFA/CFA)、时间序列、贝叶斯统计、插件系统、多用户协作。
+### 当前限制
+
+- 自由文本解析基于关键词；复杂问题请使用引导模式。
+- 尚无事后检验、eta-squared、logistic 回归和交叉表；规划器会在相关场景说明这些缺口。
+- SPSS 值标签已加载，但结果表和图表当前仍显示原始数值。
+- 报告仅覆盖当前一次分析；尚不支持多分析汇总和图表嵌入。
+- GUI 尚未提供溯源图和代码导出入口；相关能力可通过 API 使用。
+- 引导界面选择一个自变量；多自变量回归可通过 API 使用。
+- 数据集保存在当前服务进程的内存中；暂无用户账户或多用户支持。
+- 核心分析是确定性的，不包含 LLM 或 agent 层。
+- 暂不支持暗色模式、移动端布局或桌面打包。
 
 ---
 
@@ -153,134 +150,71 @@ CSV/SAV -> 自动识别类型 -> 提出问题 -> 方法推荐
 ### Prerequisites / 环境要求
 
 - Python 3.12+
-- Node.js 18+ (for frontend / 前端)
+- Node.js 18+ (for the frontend)
 
-### Backend / 后端
+### Backend
 
 ```bash
 git clone https://github.com/C1rcleW/QuantriX.git
 cd QuantriX/python
 
 pip install -e ".[dev,stats]"
-pytest                          # 160 tests / 160 个测试
 python -m uvicorn quantrix.server.app:app --host 127.0.0.1 --port 8532
 ```
 
-### Frontend / 前端
+### Frontend
 
 ```bash
 cd QuantriX/frontend
 npm install
-npm run dev                     # http://127.0.0.1:5173
+npm run dev
 ```
 
-### Usage / 使用步骤
+Open `http://127.0.0.1:5173` in a browser. API documentation is available at `http://127.0.0.1:8532/docs`.
 
-1. Open `http://127.0.0.1:5173` / 打开浏览器访问
-2. **Data tab / 数据标签页** -- drag a CSV or `.sav` file / 拖入文件
-3. **Analysis tab / 分析标签页** -- select goal + variables, click Ask / 选择目标和变量
-4. Click a method -> results appear / 点击方法 -> 显示结果
-5. **Explain Results** -> interpretation / 自然语言解读
-6. **Report** -> APA-format markdown / 生成报告
-
----
-
-## Architecture / 架构
-
-```
-+-----------------------------------------------------+
-|              Frontend / 前端 (React + TypeScript)      |
-|         Data Mode  |  Analysis Mode  |  Report Mode   |
-+-----------------------------------------------------+
-|              HTTP API / 接口 (FastAPI, 14 endpoints)   |
-+----------+----------+----------+---------------------+
-| Research | Safety   | Result   | Reproducibility     |
-| Planner  | Net      | Interp.  | DAG + Export         |
-+----------+----------+----------+---------------------+
-|         Statistics Engine / 统计引擎 (10 methods)      |
-|              scipy + statsmodels + polars              |
-+-----------------------------------------------------+
-|          Viz / 可视化 (6 chart types, recharts)        |
-+-----------------------------------------------------+
-|        Data Layer / 数据层 (SAV/CSV -> Polars)         |
-+-----------------------------------------------------+
-```
-
-## API Endpoints / 接口列表
-
-```
-POST /api/data/import              # Upload / 上传文件
-POST /api/analysis/plan            # Free-text question / 自由文本提问
-POST /api/analysis/plan-structured  # Goal + variables / 结构化提问
-POST /api/analysis/execute         # Run analysis / 执行分析
-POST /api/safety/check             # Assumptions check / 假设检验
-POST /api/chat/interpret           # Interpretation / 结果解读
-POST /api/report/generate          # APA report / 生成报告
-GET  /api/dag                      # Provenance graph / 溯源图
-POST /api/dag/export               # Python/R/SPSS code / 导出代码
-```
-
-API docs: `http://127.0.0.1:8532/docs`
-
----
-
-## Project Structure / 项目结构
-
-```
-QuantriX/
-├── python/
-│   ├── quantrix/
-│   │   ├── core/           # Dataset, Metadata, Protocols
-│   │   ├── data/           # Readers (CSV/SAV), TypeDetector, Profile
-│   │   ├── stats/          # 10 statistical methods / 10 种统计方法
-│   │   ├── viz/            # Chart data generators / 图表数据生成
-│   │   ├── safety/         # 6 safety rules / 6 条安全规则
-│   │   ├── planner/        # Question parser + decision tree
-│   │   ├── interpreter/    # Result interpretation engine
-│   │   ├── report/         # Report generator (Markdown + HTML)
-│   │   ├── dag/            # Provenance tracking + export
-│   │   └── server/         # FastAPI + 14 routes
-│   └── tests/              # 160 tests (pytest)
-├── frontend/
-│   └── src/                # React + TypeScript GUI
-├── LICENSE                 # AGPL-3.0
-└── README.md
-```
-
----
-
-## Development / 开发
+Run the backend test suite with:
 
 ```bash
-cd python
-pip install -e ".[dev,stats]"
-pytest                              # 160 tests
-ruff check quantrix/ tests/         # Lint (0 errors)
-mypy quantrix/                      # Type check
+cd QuantriX/python
+pytest
 ```
 
-### Adding a new method / 添加新方法
+### How to use / 使用步骤
 
-1. Extend `BaseStatMethod` in `stats/` / 在 `stats/` 中继承 `BaseStatMethod`
-2. Implement `execute() -> StatResult` / 实现 `execute()`
-3. Register in `stats/registry.py` / 在 `registry.py` 中注册
-4. Add interpretation template / 添加解读模板
-5. Add decision tree path (optional) / 添加决策树路径（可选）
+1. Open the **Data** tab and import a CSV or SAV file.
+2. Open **Analysis**, choose Guided or Free Text, and select a goal and variables.
+3. Click a recommended method to run the safety check and analysis.
+4. Review the tables, charts, and warnings.
+5. Click **Explain Results** for a written interpretation, then **Report** for a Markdown report.
 
 ---
 
-## Design Principles / 设计原则
+## API
 
-1. **Statistics first / 统计优先** -- Every method verifiable against SPSS/R/scipy.
-2. **Researcher workflow / 研究者工作流** -- Built for what a social scientist does in a day.
-3. **Template before LLM / 模板优先于大模型** -- Core interpretation is deterministic.
-4. **Reproducible by default / 默认可复现** -- Every analysis step tracked in the DAG.
+The backend exposes a compact HTTP API; the full schema is at `/docs`.
+
+- `POST /api/data/import` — upload a CSV/SAV file.
+- `GET /api/data/{id}`, `/variables`, `/profile`, `/table` — inspect the dataset.
+- `POST /api/analysis/plan`, `/plan-structured` — get method recommendations.
+- `POST /api/analysis/execute` — run a method after the safety gate.
+- `POST /api/safety/check` — inspect assumptions and warnings.
+- `POST /api/chat/interpret` — generate a template-based interpretation.
+- `POST /api/report/generate` — render Markdown and HTML.
+- `GET /api/dag`, `POST /api/dag/export` — inspect provenance and export Python/R/SPSS code.
+
+---
+
+## Design / 设计原则
+
+- **Statistics first** — methods are computed with Polars, SciPy, and statsmodels; results are deterministic.
+- **Template before LLM** — interpretations come from explicit templates, not generated prose.
+- **Provenance by default** — imports and analyses are recorded; code export is available through the API.
 
 ---
 
 ## License / 许可证
 
-GNU Affero General Public License v3.0 -- see [LICENSE](./LICENSE).
+GNU Affero General Public License v3.0 — see [LICENSE](./LICENSE).
 
 ---
 
@@ -289,7 +223,7 @@ GNU Affero General Public License v3.0 -- see [LICENSE](./LICENSE).
 ```bibtex
 @software{quantrix2026,
   author = {Quantrix Contributors},
-  title = {Quantrix: AI-Native Quantitative Research Platform for Social Sciences},
+  title = {Quantrix: A Quantitative Research Platform for the Social Sciences},
   year = {2026},
   version = {0.1.0},
   url = {https://github.com/C1rcleW/QuantriX}

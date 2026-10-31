@@ -1,7 +1,6 @@
-# Quantrix - AI-Native Quantitative Research Platform
+# Quantrix - A Quantitative Research Platform for the Social Sciences
 #
-# An open-source academic infrastructure for social science research.
-# From data to paper, one straight line.
+# An open-source platform for guided quantitative research.
 #
 # Copyright (C) 2025 Quantrix Contributors
 # Licensed under GNU AGPL-3.0

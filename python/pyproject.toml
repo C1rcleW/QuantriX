@@ -5,8 +5,8 @@ build-backend = "hatchling.build"
 [project]
 name = "quantrix"
 version = "0.1.0.dev0"
-description = "AI-Native Quantitative Research Platform for Social Sciences"
-readme = {text = "AI-Native Quantitative Research Platform for Social Sciences. See https://github.com/C1rcleW/QuantriX for full documentation.", content-type = "text/markdown"}
+description = "A quantitative research platform for the social sciences"
+readme = {text = "A quantitative research platform for the social sciences. See https://github.com/C1rcleW/QuantriX for full documentation.", content-type = "text/markdown"}
 license = {text = "AGPL-3.0-only"}
 requires-python = ">=3.12"
 authors = [
