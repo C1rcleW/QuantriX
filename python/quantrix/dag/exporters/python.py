@@ -42,9 +42,8 @@ def export_python(dag: AnalysisDAG, dataset_name: str = "data") -> str:
                 lines.append("t, p = stats.ttest_ind(g1, g2)")
                 lines.append("print(f't={t:.3f}, p={p:.4f}')")
             elif m == "pearson_correlation":
-                lines.append(
-                    f"r, p = stats.pearsonr(df['{dv}'].drop_nulls(), df['{iv}'].drop_nulls())"
-                )
+                lines.append(f"pair = df.select(['{dv}', '{iv}']).drop_nulls()")
+                lines.append(f"r, p = stats.pearsonr(pair['{dv}'], pair['{iv}'])")
                 lines.append("print(f'r={r:.3f}, p={p:.4f}')")
             elif m == "oneway_anova":
                 lines.append(
@@ -82,8 +81,9 @@ def export_python(dag: AnalysisDAG, dataset_name: str = "data") -> str:
                 lines.append("h, p = stats.kruskal(*groups)")
                 lines.append("print(f'H={h:.3f}, p={p:.4f}')")
             elif m == "spearman_correlation":
+                lines.append(f"pair = df.select(['{dv}', '{iv}']).drop_nulls()")
                 lines.append(
-                    f"rho, p = stats.spearmanr(df['{dv}'].drop_nulls(), df['{iv}'].drop_nulls())"
+                    f"rho, p = stats.spearmanr(pair['{dv}'], pair['{iv}'])"
                 )
                 lines.append("print(f'rho={rho:.3f}, p={p:.4f}')")
             else:

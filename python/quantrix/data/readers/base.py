@@ -7,6 +7,7 @@ and implements ReaderProtocol.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import polars as pl
 
@@ -21,24 +22,6 @@ _SPSS_MEASURE_TO_TYPE: dict[str, VariableType] = {
     "ordinal": VariableType.ORDINAL,
     "nominal": VariableType.NOMINAL,
     "unknown": VariableType.NOMINAL,
-}
-
-# Polars dtype → VariableType mapping (for CSV and other format-less readers)
-_POLARS_DTYPE_TO_TYPE: dict[pl.DataType, VariableType] = {
-    pl.Float64: VariableType.CONTINUOUS,
-    pl.Float32: VariableType.CONTINUOUS,
-    pl.Int64: VariableType.CONTINUOUS,
-    pl.Int32: VariableType.CONTINUOUS,
-    pl.Int16: VariableType.CONTINUOUS,
-    pl.Int8: VariableType.CONTINUOUS,
-    pl.UInt64: VariableType.CONTINUOUS,
-    pl.UInt32: VariableType.CONTINUOUS,
-    pl.UInt16: VariableType.CONTINUOUS,
-    pl.UInt8: VariableType.CONTINUOUS,
-    pl.Boolean: VariableType.NOMINAL,
-    pl.String: VariableType.STRING,
-    pl.Categorical: VariableType.NOMINAL,
-    pl.Enum: VariableType.NOMINAL,
 }
 
 
@@ -118,10 +101,11 @@ def enrich_metadata_from_data(meta: VariableMetadata, column: pl.Series) -> Vari
     meta.n_unique = valid_series.n_unique() if valid > 0 else 0
 
     if meta.variable_type == VariableType.CONTINUOUS and valid > 0:
-        meta.min_value = valid_series.min()
-        meta.max_value = valid_series.max()
-        meta.mean = valid_series.mean()
-        meta.std_dev = valid_series.std()
+        numeric: Any = valid_series.cast(pl.Float64)
+        meta.min_value = float(numeric.min())
+        meta.max_value = float(numeric.max())
+        meta.mean = float(numeric.mean())
+        meta.std_dev = float(numeric.std() or 0.0)
         # Skewness and kurtosis require scipy; populated by inference engine
 
     return meta

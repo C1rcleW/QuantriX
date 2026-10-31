@@ -7,6 +7,10 @@ Usage:
 
 from __future__ import annotations
 
+from typing import Any
+
+from quantrix.core.dataset import Dataset
+from quantrix.core.metadata import VariableMetadata
 from quantrix.stats.base import BaseStatMethod
 from quantrix.stats.comparison import (
     IndependentTTest,
@@ -27,7 +31,7 @@ def get_registry() -> dict[str, BaseStatMethod]:
     return _registry
 
 
-def _register_all():
+def _register_all() -> None:
     methods = [
         Frequencies(),
         Descriptives(),
@@ -44,7 +48,13 @@ def _register_all():
         _registry[m.method_name] = m
 
 
-def execute_analysis(method_name: str, dataset, dv, ivs, **params) -> dict:
+def execute_analysis(
+    method_name: str,
+    dataset: Dataset,
+    dv: VariableMetadata | None,
+    ivs: list[VariableMetadata] | None,
+    **params: object,
+) -> dict[str, Any]:
     """Execute a statistical analysis and return results as dict.
 
     Args:

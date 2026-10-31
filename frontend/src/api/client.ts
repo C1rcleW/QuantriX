@@ -136,6 +136,7 @@ export interface AnalysisPlan {
   question_type: string;
   design: string;
   recommendations: PlanRecommendation[];
+  notes?: string[];
 }
 
 export interface SafetyReport {
@@ -143,8 +144,8 @@ export interface SafetyReport {
   is_clean: boolean;
   has_errors: boolean;
   has_warnings: boolean;
-  errors: { rule: string; message: string; suggestion: string }[];
-  warnings: { rule: string; message: string; suggestion: string }[];
+  errors: { rule: string; severity: string; message: string; suggestion: string }[];
+  warnings: { rule: string; severity: string; message: string; suggestion: string }[];
   info: { rule: string; message: string }[];
 }
 
@@ -227,12 +228,17 @@ export async function runSafetyCheck(
 /** Get natural-language interpretation of results. */
 export async function getInterpretation(
   methodName: string,
-  statistics: Record<string, unknown>
+  statistics: Record<string, unknown>,
+  safetyWarnings?: { severity: string; message: string; suggestion?: string }[]
 ): Promise<Interpretation> {
   const res = await fetch(`${BASE}/chat/interpret`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ method_name: methodName, statistics }),
+    body: JSON.stringify({
+      method_name: methodName,
+      statistics,
+      safety_warnings: safetyWarnings,
+    }),
   });
   if (!res.ok) await raiseForStatus(res, "Interpretation failed");
   return res.json();

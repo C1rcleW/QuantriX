@@ -18,6 +18,7 @@ Each rule returns a list of SafetyWarning. The engine collects them all.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from quantrix.core.dataset import Dataset
 from quantrix.core.metadata import VariableMetadata
@@ -55,7 +56,7 @@ class SafetyReport:
     def is_clean(self) -> bool:
         return not self.has_errors and not self.has_warnings
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "method_name": self.method_name,
             "is_clean": self.is_clean,

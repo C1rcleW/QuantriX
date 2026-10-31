@@ -6,6 +6,10 @@ Shapiro-Wilk tests (which require scipy and are slow on large N).
 
 from __future__ import annotations
 
+from typing import Any
+
+import polars as pl
+
 from quantrix.core.dataset import Dataset
 from quantrix.core.metadata import VariableMetadata
 from quantrix.safety.engine import SafetyRule, SafetyWarning
@@ -41,7 +45,7 @@ class NormalityRule(SafetyRule):
         if dv is None or df is None or dv.name not in df.columns:
             return warnings
 
-        col = df[dv.name].drop_nulls()
+        col: Any = df[dv.name].drop_nulls().cast(pl.Float64)
         if len(col) < 3:
             return warnings
 

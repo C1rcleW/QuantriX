@@ -69,7 +69,7 @@ register(
 ## Independent Samples t-test: {dv_label} by {iv_label}
 
 An independent samples t-test was conducted to compare {dv_label} \
-between {group_labels}.
+between the {group_labels[0]} and {group_labels[1]} groups.
 
 - **{group_labels[0]}**: M = {means[0]:.2f}, SD = {sds[0]:.2f}, n = {ns[0]}
 - **{group_labels[1]}**: M = {means[1]:.2f}, SD = {sds[1]:.2f}, n = {ns[1]}
@@ -102,7 +102,8 @@ register(
 ## Mann-Whitney U Test: {dv_label} by {iv_label}
 
 A Mann-Whitney U test (nonparametric alternative to the independent \
-t-test) was conducted to compare {dv_label} between {group_labels}.
+t-test) was conducted to compare {dv_label} between the \
+{group_labels[0]} and {group_labels[1]} groups.
 
 {sig_text}
 {effect_size_text}
@@ -135,8 +136,6 @@ between {dv_label} and {iv_label}.
 
 There was a **{strength} {direction}** correlation between the two \
 variables, r({df}) = {r:.3f}, {sig_text}.
-
-This indicates that {interpretation}.
 """,
 )
 

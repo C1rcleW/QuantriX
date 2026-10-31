@@ -1,5 +1,11 @@
 """Descriptive statistics."""
 
+from typing import Any
+
+import polars as pl
+
+from quantrix.core.dataset import Dataset
+from quantrix.core.metadata import VariableMetadata
 from quantrix.stats.base import BaseStatMethod, StatResult
 from quantrix.viz import bar, histogram
 
@@ -8,7 +14,13 @@ class Frequencies(BaseStatMethod):
     method_name = "frequencies"
     method_family = "descriptive"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None:
             return StatResult(
                 method_name=self.method_name,
@@ -54,6 +66,7 @@ class Frequencies(BaseStatMethod):
                 "category_summary": cat_sum,
                 "mode_category": mode_cat,
                 "mode_count": mode_count,
+                "mode_pct": round(mode_count / n_valid * 100, 1) if n_valid else 0.0,
                 "n_categories": n_cat,
                 "n": n_total,
             },
@@ -65,7 +78,13 @@ class Descriptives(BaseStatMethod):
     method_name = "descriptives"
     method_family = "descriptive"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None:
             return StatResult(
                 method_name=self.method_name,
@@ -83,14 +102,15 @@ class Descriptives(BaseStatMethod):
                 n_samples=len(col),
                 errors=["No valid data"],
             )
-        m = valid.mean()
-        s = valid.std()
-        mn = valid.min()
-        mx = valid.max()
-        md = valid.median()
-        q1 = valid.quantile(0.25)
-        q3 = valid.quantile(0.75)
-        sk = ((valid - m) ** 3).mean() / (s**3) if s and s > 0 else 0.0
+        numeric: Any = valid.cast(pl.Float64)
+        m = float(numeric.mean())
+        s = float(numeric.std() or 0.0)
+        mn = float(numeric.min())
+        mx = float(numeric.max())
+        md = float(numeric.median())
+        q1 = float(numeric.quantile(0.25))
+        q3 = float(numeric.quantile(0.75))
+        sk = float(((numeric - m) ** 3).mean() / (s**3)) if s > 0 else 0.0
         sk_txt = f"Skewed (skewness={sk:.2f})" if abs(sk) > 1 else ""
         rows = [
             ["N", n],
@@ -102,7 +122,7 @@ class Descriptives(BaseStatMethod):
             ["Q3", round(q3, 2)],
             ["Max", round(mx, 2)],
         ]
-        raw_values = valid.to_list()
+        raw_values = [float(v) for v in numeric.to_list()]
         return StatResult(
             method_name=self.method_name,
             method_family=self.method_family,

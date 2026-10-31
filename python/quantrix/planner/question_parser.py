@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TypedDict
+
 _DESCRIPTIVE_KEYWORDS: list[str] = [
     "describe",
     "description",
@@ -95,11 +97,16 @@ def classify_question(text: str) -> str:
     return best if scores[best] > 0 else "descriptive"
 
 
-def extract_variable_roles(text: str, variable_names: list[str]) -> dict:
+class VariableRoles(TypedDict):
+    dependent: str | None
+    independent: list[str]
+
+
+def extract_variable_roles(text: str, variable_names: list[str]) -> VariableRoles:
     """Map mentioned variables to roles. Handles 'X differs by Y' pattern."""
     text_lower = text.lower()
     mentioned = [v for v in variable_names if v.lower() in text_lower]
-    roles = {"dependent": None, "independent": []}
+    roles: VariableRoles = {"dependent": None, "independent": []}
 
     if not mentioned:
         return roles

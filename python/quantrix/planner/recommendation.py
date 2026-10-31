@@ -6,8 +6,11 @@ recommendations with rationale and assumptions.
 
 from __future__ import annotations
 
+from typing import Any
+
 from quantrix.core.dataset import Dataset
 from quantrix.core.metadata import VariableMetadata
+from quantrix.core.types import VariableType
 from quantrix.planner.decision_tree import DecisionTree, MethodCandidate, ResearchGoal
 from quantrix.planner.question_parser import (
     classify_question,
@@ -41,7 +44,7 @@ class ResearchPlanner:
         dv_name: str | None,
         iv_names: list[str],
         dataset: Dataset,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Generate a plan from explicit goal + variable selections (no NLP)."""
         goal_map = {
             "describe": ResearchGoal.DESCRIBE,
@@ -60,21 +63,37 @@ class ResearchPlanner:
         dv = dataset.get_variable(dv_name) if dv_name else None
         ivs = [dataset.get_variable(n) for n in iv_names if n in dataset.variable_names]
 
-        candidates = self._implemented_only(
+        candidates, notes = self._prepare(
             self.tree.recommend(goal=mapped, dependent=dv, independents=ivs)
         )
 
         if not candidates and dv is None:
-            candidates = self._fallback(dataset, mapped)
+            fallback_candidates, fallback_notes = self._prepare(
+                self._fallback(dataset, mapped)
+            )
+            candidates = fallback_candidates
+            notes.extend(note for note in fallback_notes if note not in notes)
+
+        notes.extend(
+            note
+            for note in self._validation_notes(mapped, dv, ivs)
+            if note not in notes
+        )
+
+        if not candidates and not notes:
+            notes.append(
+                "No statistical method is available for this goal and variable combination."
+            )
 
         return {
             "question": f"{goal}: {dv_name or '?'} {'~ ' + ' + '.join(iv_names) if iv_names else ''}",
             "question_type": question_map.get(goal, "descriptive"),
             "design": "cross-sectional",
             "recommendations": self._format(candidates, dv, ivs),
+            "notes": notes,
         }
 
-    def plan(self, question: str, dataset: Dataset) -> dict:
+    def plan(self, question: str, dataset: Dataset) -> dict[str, Any]:
         qt = classify_question(question)
         goal = _map_question_type(qt)
         roles = extract_variable_roles(question, dataset.variable_names)
@@ -87,19 +106,33 @@ class ResearchPlanner:
         ivs = [dataset.get_variable(str(n)) for n in (iv_names or []) if isinstance(n, str)]
 
         # Get recommendations from decision tree
-        candidates = self._implemented_only(
+        candidates, notes = self._prepare(
             self.tree.recommend(goal=goal, dependent=dv, independents=ivs)
         )
 
         # Fallback: if no variables extracted, try all variables
         if not candidates and dv is None:
-            candidates = self._fallback(dataset, goal)
+            fallback_candidates, fallback_notes = self._prepare(
+                self._fallback(dataset, goal)
+            )
+            candidates = fallback_candidates
+            notes.extend(note for note in fallback_notes if note not in notes)
+
+        notes.extend(
+            note for note in self._validation_notes(goal, dv, ivs) if note not in notes
+        )
+
+        if not candidates and not notes:
+            notes.append(
+                "No statistical method is available for this goal and variable combination."
+            )
 
         return {
             "question": question,
             "question_type": qt,
             "design": design,
             "recommendations": self._format(candidates, dv, ivs),
+            "notes": notes,
         }
 
     def _fallback(self, dataset: Dataset, goal: str) -> list[MethodCandidate]:
@@ -117,7 +150,7 @@ class ResearchPlanner:
             for dv in continuous[:2]:
                 for iv in categorical[:2]:
                     r = self.tree.recommend(goal=goal, dependent=dv, independents=[iv])
-                    for c in self._implemented_only(r):
+                    for c in r:
                         if c.method_name not in seen:
                             seen.add(c.method_name)
                             results.append(c)
@@ -125,7 +158,7 @@ class ResearchPlanner:
         if not results:
             for var in dataset.variables[:5]:
                 r = self.tree.recommend(goal=ResearchGoal.DESCRIBE, dependent=var, independents=[])
-                for c in self._implemented_only(r):
+                for c in r:
                     if c.method_name not in seen:
                         seen.add(c.method_name)
                         results.append(c)
@@ -134,17 +167,79 @@ class ResearchPlanner:
         return results[:5]
 
     @staticmethod
-    def _implemented_only(candidates: list[MethodCandidate]) -> list[MethodCandidate]:
-        """Keep recommendations executable by the current stats registry."""
+    def _prepare(
+        candidates: list[MethodCandidate],
+    ) -> tuple[list[MethodCandidate], list[str]]:
+        """Split candidates into executable methods and notes about missing ones."""
         supported = set(get_registry())
-        return [c for c in candidates if c.method_name in supported]
+        implemented = [c for c in candidates if c.method_name in supported]
+        dropped = [c for c in candidates if c.method_name not in supported]
+
+        notes: list[str] = []
+        seen: set[str] = set()
+        for candidate in dropped:
+            if candidate.method_name in seen:
+                continue
+            seen.add(candidate.method_name)
+            note = (
+                f"{candidate.display_name} is statistically appropriate here but "
+                "not implemented in this build."
+            )
+            if candidate.alternatives:
+                note += f" Alternatives: {', '.join(candidate.alternatives)}."
+            notes.append(note)
+
+        implemented.sort(key=lambda c: c.confidence, reverse=True)
+        return implemented, notes
+
+    @staticmethod
+    def _validation_notes(
+        goal: str,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata],
+    ) -> list[str]:
+        """Explain variable-type combinations that no current method can satisfy."""
+        notes: list[str] = []
+        if goal == ResearchGoal.COMPARE_GROUPS:
+            if not ivs:
+                notes.append("Group comparison requires a categorical grouping variable.")
+            elif (
+                not ivs[0].is_categorical
+                or ivs[0].variable_type == VariableType.STRING
+            ):
+                notes.append(
+                    "Group comparison requires a categorical grouping variable; "
+                    "the selected grouping variable is continuous or free text."
+                )
+            elif ivs[0].n_unique is not None and ivs[0].n_unique < 2:
+                notes.append(
+                    "Group comparison requires a grouping variable with at least "
+                    "two categories."
+                )
+        if (
+            goal == ResearchGoal.ASSOCIATION
+            and ivs
+            and ivs[0].variable_type == VariableType.STRING
+        ):
+            notes.append(
+                "Association with a free-text variable is not supported; "
+                "recode it as a categorical variable first."
+            )
+        if goal == ResearchGoal.PREDICT and dv is not None and dv.is_continuous:
+            for iv in ivs:
+                if iv.variable_type == VariableType.STRING:
+                    notes.append(
+                        f"Predictor '{iv.display_name}' is free text and cannot be "
+                        "used in linear regression."
+                    )
+        return notes
 
     @staticmethod
     def _format(
         candidates: list[MethodCandidate],
         dv: VariableMetadata | None,
         ivs: list[VariableMetadata],
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """Format MethodCandidate list for API response."""
         return [
             {

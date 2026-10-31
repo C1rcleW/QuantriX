@@ -78,7 +78,14 @@ export function AnalysisMode() {
     try {
       const s = await runSafetyCheck(dataset.datasetId, rec.method_name, rec.matched_variables.dependent, rec.matched_variables.independents);
       setSafety(s);
-    } catch { /* optional */ }
+      if (s.has_errors) {
+        setError(`Analysis blocked: ${s.errors.map(e => e.message).join("; ")}`);
+        return;
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Safety check failed");
+      return;
+    }
     try {
       const data = await executeAnalysis(dataset.datasetId, rec.method_name, rec.matched_variables.dependent, rec.matched_variables.independents);
       setStatResult(data);
@@ -111,12 +118,13 @@ export function AnalysisMode() {
       if (statResult.sig_text) stats.sig_text = statResult.sig_text;
       if (statResult.effect_size_text) stats.effect_size_text = statResult.effect_size_text;
 
-      const interp = await getInterpretation(selectedMethod.method_name, stats);
+      const safetyWarnings = safety ? [...safety.errors, ...safety.warnings] : undefined;
+      const interp = await getInterpretation(selectedMethod.method_name, stats, safetyWarnings);
       setInterpretation(interp);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Interpretation failed");
     }
-  }, [statResult, selectedMethod]);
+  }, [statResult, selectedMethod, safety]);
 
   const handleReport = useCallback(async () => {
     if (!interpretation || !dataset) return;
@@ -231,6 +239,14 @@ export function AnalysisMode() {
               <div style={{ fontSize: 12, color: "#666" }}>{rec.rationale}</div>
             </div>
           ))}
+          {plan.recommendations.length === 0 && (
+            <div style={S.warn}>No executable method is available yet for this goal. See the notes below.</div>
+          )}
+          {plan.notes && plan.notes.length > 0 && (
+            <div style={S.notes}>
+              {plan.notes.map((note, i) => <div key={i}>{note}</div>)}
+            </div>
+          )}
         </div>
       )}
 
@@ -294,6 +310,8 @@ const S: Record<string, React.CSSProperties> = {
   input: { flex: 1, padding: "10px 14px", fontSize: 15, border: "1px solid #ddd", borderRadius: 8, resize: "none", fontFamily: "inherit" },
   askBtn: { padding: "10px 24px", background: "#1a73e8", color: "#fff", border: "none", borderRadius: 8, fontSize: 15, fontWeight: 600, cursor: "pointer" },
   err: { padding: 12, background: "#fff0f0", border: "1px solid #fcc", borderRadius: 8, color: "#c00", marginBottom: 16 },
+  warn: { padding: 10, background: "#fef7e0", border: "1px solid #f5d58a", borderRadius: 8, color: "#7a5b00", marginBottom: 8, fontSize: 12 },
+  notes: { marginTop: 8, padding: 10, background: "#f8f9fa", border: "1px solid #e0e0e0", borderRadius: 8, color: "#555", fontSize: 12, lineHeight: 1.5 },
   secTitle: { fontSize: 14, fontWeight: 600, color: "#555", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" },
   card: { padding: 12, border: "1px solid #e0e0e0", borderRadius: 8, cursor: "pointer", background: "#fff", marginBottom: 6 },
   cardSel: { border: "2px solid #1a73e8", background: "#f0f7ff" },

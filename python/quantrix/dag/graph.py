@@ -45,18 +45,18 @@ class ProvenanceEdge(BaseModel):
 
 
 class AnalysisDAG:
-    def __init__(self):
+    def __init__(self) -> None:
         self.nodes: dict[UUID, ProvenanceNode] = {}
         self.edges: list[ProvenanceEdge] = []
 
-    def add_node(self, node):
+    def add_node(self, node: ProvenanceNode) -> None:
         self.nodes[node.id] = node
 
-    def add_edge(self, source, target, label=""):
+    def add_edge(self, source: UUID, target: UUID, label: str = "") -> None:
         self.edges.append(ProvenanceEdge(source_id=source, target_id=target, label=label))
 
-    def get_downstream(self, node_id):
-        downstream = set()
+    def get_downstream(self, node_id: UUID) -> list[UUID]:
+        downstream: set[UUID] = set()
         stack = [node_id]
         while stack:
             cur = stack.pop()
@@ -66,17 +66,17 @@ class AnalysisDAG:
                     stack.append(e.target_id)
         return list(downstream)
 
-    def mark_stale(self, node_id):
-        for sid in [node_id] + self.get_downstream(node_id):
+    def mark_stale(self, node_id: UUID) -> None:
+        for sid in [node_id, *self.get_downstream(node_id)]:
             if sid in self.nodes:
                 self.nodes[sid].status = NodeStatus.STALE
 
-    def topological_order(self):
+    def topological_order(self) -> list[ProvenanceNode]:
         in_deg = dict.fromkeys(self.nodes, 0)
         for e in self.edges:
             in_deg[e.target_id] = in_deg.get(e.target_id, 0) + 1
-        queue = [nid for nid, d in in_deg.items() if d == 0]
-        result = []
+        queue: list[UUID] = [nid for nid, d in in_deg.items() if d == 0]
+        result: list[ProvenanceNode] = []
         while queue:
             nid = queue.pop(0)
             if nid in self.nodes:
@@ -88,7 +88,7 @@ class AnalysisDAG:
                         queue.append(e.target_id)
         return result
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, object]:
         return {
             "nodes": [
                 {
@@ -108,5 +108,5 @@ class AnalysisDAG:
         }
 
     @property
-    def node_count(self):
+    def node_count(self) -> int:
         return len(self.nodes)

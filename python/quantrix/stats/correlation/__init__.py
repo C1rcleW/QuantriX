@@ -1,16 +1,37 @@
 """Correlation: Pearson, Spearman, Chi-square."""
 
-from scipy import stats as sps
+from typing import Any
 
+import polars as pl
+from scipy import stats as sps  # type: ignore[import-untyped]
+
+from quantrix.core.dataset import Dataset
+from quantrix.core.metadata import VariableMetadata
 from quantrix.stats.base import BaseStatMethod, StatResult
 from quantrix.viz import bar, scatter
+
+
+def _paired_numeric(
+    xcol: pl.Series, ycol: pl.Series
+) -> tuple[Any, Any]:
+    """Return pairwise-complete numeric values, preserving row alignment."""
+    x = xcol.cast(pl.Float64)
+    y = ycol.cast(pl.Float64)
+    mask = x.is_not_null() & y.is_not_null()
+    return x.filter(mask).to_numpy(), y.filter(mask).to_numpy()
 
 
 class PearsonCorrelation(BaseStatMethod):
     method_name = "pearson_correlation"
     method_family = "correlation"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None or not ivs:
             return StatResult(
                 method_name=self.method_name,
@@ -18,11 +39,17 @@ class PearsonCorrelation(BaseStatMethod):
                 n_samples=0,
                 errors=["Two variables required"],
             )
-        xc = self._get_valid(dataset, dv)
-        yc = self._get_valid(dataset, ivs[0])
-        mask = xc.is_not_null() & yc.is_not_null()
-        x = xc.filter(mask).to_numpy()
-        y = yc.filter(mask).to_numpy()
+        try:
+            x, y = _paired_numeric(
+                self._get_column(dataset, dv), self._get_column(dataset, ivs[0])
+            )
+        except Exception as e:
+            return StatResult(
+                method_name=self.method_name,
+                method_family=self.method_family,
+                n_samples=0,
+                errors=[f"Both variables must be numeric: {e}"],
+            )
         n = len(x)
         if n < 3:
             return StatResult(
@@ -43,8 +70,10 @@ class PearsonCorrelation(BaseStatMethod):
         sig = self._format_p(p)
         x_list = x.tolist()
         y_list = y.tolist()
-        x_mean = float(x.mean()); y_mean = float(y.mean())
-        sx = float(x.std(ddof=1)); sy = float(y.std(ddof=1))
+        x_mean = float(x.mean())
+        y_mean = float(y.mean())
+        sx = float(x.std(ddof=1))
+        sy = float(y.std(ddof=1))
         slope = r * sy / sx if sx > 0 else 0
         intercept = y_mean - slope * x_mean
         x_range = [float(x.min()), float(x.max())]
@@ -71,7 +100,13 @@ class SpearmanCorrelation(BaseStatMethod):
     method_name = "spearman_correlation"
     method_family = "correlation"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None or not ivs:
             return StatResult(
                 method_name=self.method_name,
@@ -79,11 +114,17 @@ class SpearmanCorrelation(BaseStatMethod):
                 n_samples=0,
                 errors=["Two variables required"],
             )
-        xc = self._get_valid(dataset, dv)
-        yc = self._get_valid(dataset, ivs[0])
-        mask = xc.is_not_null() & yc.is_not_null()
-        x = xc.filter(mask).to_numpy()
-        y = yc.filter(mask).to_numpy()
+        try:
+            x, y = _paired_numeric(
+                self._get_column(dataset, dv), self._get_column(dataset, ivs[0])
+            )
+        except Exception as e:
+            return StatResult(
+                method_name=self.method_name,
+                method_family=self.method_family,
+                n_samples=0,
+                errors=[f"Both variables must be numeric: {e}"],
+            )
         n = len(x)
         if n < 3:
             return StatResult(
@@ -93,6 +134,13 @@ class SpearmanCorrelation(BaseStatMethod):
                 errors=["Not enough valid pairs"],
             )
         rho, p = sps.spearmanr(x, y)
+        ra = abs(float(rho))
+        strength = (
+            "negligible"
+            if ra < 0.1
+            else ("weak" if ra < 0.3 else ("moderate" if ra < 0.5 else "strong"))
+        )
+        direction = "positive" if rho >= 0 else "negative"
         sig = self._format_p(p)
         return StatResult(
             method_name=self.method_name,
@@ -103,8 +151,13 @@ class SpearmanCorrelation(BaseStatMethod):
             statistics={"rho": rho, "p_value": p, "n": n},
             effect_sizes={"rho": rho},
             sig_text=f"rho={rho:.3f}, {sig}",
-            effect_size_text="",
-            misc={"rho": rho, "n": n},
+            effect_size_text=f"{strength} {direction} correlation",
+            misc={
+                "rho": rho,
+                "n": n,
+                "strength": strength,
+                "direction": direction,
+            },
             charts=[scatter(x.tolist(), y.tolist(),
                 f"{dv.display_name} vs {ivs[0].display_name}",
                 ivs[0].display_name, dv.display_name)],
@@ -115,7 +168,13 @@ class ChiSquare(BaseStatMethod):
     method_name = "chi_square"
     method_family = "correlation"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None or not ivs:
             return StatResult(
                 method_name=self.method_name,

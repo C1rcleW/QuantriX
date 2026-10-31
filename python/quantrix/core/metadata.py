@@ -78,13 +78,13 @@ class VariableMetadata(BaseModel):
     modified_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     source_format: str = ""  # "sav", "csv", etc.
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def is_complete(self) -> bool:
         """True if the variable has no missing values."""
         return self.missing_count == 0
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def is_categorical(self) -> bool:
         """True for nominal, ordinal, or string types."""
@@ -94,13 +94,13 @@ class VariableMetadata(BaseModel):
             VariableType.STRING,
         )
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def is_continuous(self) -> bool:
         """True for continuous (scale) variables."""
         return self.variable_type == VariableType.CONTINUOUS
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
     def display_name(self) -> str:
         """Human-readable name: label if present, otherwise variable name."""

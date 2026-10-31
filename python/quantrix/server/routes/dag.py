@@ -6,6 +6,8 @@ POST   /api/dag/export    — Export DAG as Python/R/SPSS Syntax
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -28,7 +30,7 @@ class ExportResponse(BaseModel):
 
 
 @router.get("")
-def get_dag() -> dict:
+def get_dag() -> dict[str, Any]:
     """Get the current analysis DAG."""
     tracker = get_tracker()
     return tracker.dag.to_dict()

@@ -10,6 +10,7 @@ Reads SPSS data files via pyreadstat, preserving all metadata:
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import polars as pl
 import pyreadstat
@@ -108,9 +109,11 @@ class SpssReader:
         ranges = meta.missing_ranges.get(col_name, [])
         if ranges:
             for r in ranges:
-                if hasattr(r, "lo") and hasattr(r, "hi"):
-                    lo_val = float(r.lo) if r.lo is not None else None  # type: ignore[union-attr]
-                    hi_val = float(r.hi) if r.hi is not None else None  # type: ignore[union-attr]
+                lo_raw = getattr(r, "lo", None)
+                hi_raw = getattr(r, "hi", None)
+                if lo_raw is not None or hi_raw is not None:
+                    lo_val = _to_float(lo_raw)
+                    hi_val = _to_float(hi_raw)
                     if lo_val == hi_val and lo_val is not None:
                         discrete.append(lo_val)
                     elif range_low is None:
@@ -120,7 +123,15 @@ class SpssReader:
         # Also check user-defined missing values (from read or older write paths)
         user_missing = meta.missing_user_values.get(col_name, [])
         for v in user_missing:
-            if float(v) not in discrete:
-                discrete.append(float(v))
+            val = _to_float(v)
+            if val is not None and val not in discrete:
+                discrete.append(val)
 
         return MissingDefinition(discrete=discrete, range_low=range_low, range_high=range_high)
+
+
+def _to_float(value: Any) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None

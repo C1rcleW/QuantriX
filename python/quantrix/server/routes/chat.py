@@ -5,6 +5,8 @@ POST   /api/chat/interpret   — Generate natural-language interpretation of res
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -15,8 +17,8 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 class InterpretRequest(BaseModel):
     method_name: str
-    statistics: dict
-    safety_warnings: list[dict] | None = None
+    statistics: dict[str, Any]
+    safety_warnings: list[dict[str, Any]] | None = None
 
 
 class InterpretResponse(BaseModel):

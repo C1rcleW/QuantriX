@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 
@@ -52,7 +53,7 @@ def _get_reader(extension: str) -> SpssReader | CsvReader:
 @router.post("/import")
 async def import_file(
     file: UploadFile = File(description="Data file to import"),  # noqa: B008
-) -> dict:
+) -> dict[str, Any]:
     """Upload a data file and return parsed Dataset metadata."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
@@ -113,7 +114,7 @@ async def import_file(
 
 
 @router.get("/{dataset_id}")
-def get_dataset_summary(dataset_id: str) -> dict:
+def get_dataset_summary(dataset_id: str) -> dict[str, Any]:
     ds = get_dataset(dataset_id)
     return {
         "dataset_id": dataset_id,
@@ -129,7 +130,7 @@ def get_dataset_summary(dataset_id: str) -> dict:
 
 
 @router.get("/{dataset_id}/variables")
-def get_variables(dataset_id: str) -> dict:
+def get_variables(dataset_id: str) -> dict[str, Any]:
     ds = get_dataset(dataset_id)
     return {
         "dataset_id": dataset_id,
@@ -175,7 +176,7 @@ def get_variables(dataset_id: str) -> dict:
 def get_profile(
     dataset_id: str,
     format: str = Query(default="json"),
-) -> dict | str:
+) -> dict[str, Any] | str:
     ds = get_dataset(dataset_id)
     generator = ProfileGenerator()
     profile = generator.generate(ds)
@@ -219,7 +220,7 @@ def get_table(
     dataset_id: str,
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=1000),
-) -> dict:
+) -> dict[str, Any]:
     ds = get_dataset(dataset_id)
     df = ds.data
     if df is None:

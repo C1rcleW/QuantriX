@@ -137,6 +137,120 @@ class TestRegression:
         assert r["errors"] == []
         assert "r_squared" in r["statistics"]
 
+    def test_linear_with_categorical_predictor(self):
+        ds = make_ds(
+            {
+                "income": [50000, 61000, 45000, 72000, 55000, 48000],
+                "gender": ["male", "female", "male", "female", "male", "female"],
+            }
+        )
+        dv = get_var(ds, "income")
+        iv = get_var(ds, "gender")
+        iv.variable_type = VariableType.NOMINAL
+        r = execute_analysis("linear_regression", ds, dv, [iv])
+        assert r["errors"] == []
+        rows = r["tables"][0]["rows"]
+        assert len(rows) == 2
+        assert any("gender" in str(row[0]).lower() for row in rows[1:])
+        assert r["charts"][0]["chart_type"] == "box"
+
+    def test_linear_with_multiple_predictors(self):
+        ds = make_ds(
+            {
+                "income": [50000, 61000, 45000, 72000, 55000, 48000, 64000, 53000],
+                "education": [12, 16, 9, 18, 14, 11, 17, 13],
+                "age": [25, 31, 22, 45, 38, 29, 41, 34],
+            }
+        )
+        dv = get_var(ds, "income")
+        r = execute_analysis(
+            "linear_regression",
+            ds,
+            dv,
+            [get_var(ds, "education"), get_var(ds, "age")],
+        )
+        assert r["errors"] == []
+        assert len(r["tables"][0]["rows"]) == 3
+        assert r["charts"][0]["chart_type"] == "scatter_with_line"
+        assert "Fitted vs Observed" in r["charts"][0]["title"]
+
+    def test_linear_with_categorical_and_continuous_predictors(self):
+        ds = make_ds(
+            {
+                "income": [50000, 61000, 45000, 72000, 55000, 48000, 64000, 53000],
+                "gender": ["male", "female", "male", "female", "male", "female", "male", "female"],
+                "education": [12, 16, 9, 18, 14, 11, 17, 13],
+            }
+        )
+        gender = get_var(ds, "gender")
+        gender.variable_type = VariableType.NOMINAL
+        r = execute_analysis(
+            "linear_regression",
+            ds,
+            get_var(ds, "income"),
+            [gender, get_var(ds, "education")],
+        )
+        assert r["errors"] == []
+        assert len(r["tables"][0]["rows"]) == 3
+        assert r["charts"][0]["chart_type"] == "scatter_with_line"
+
+    def test_linear_with_one_continuous_predictor_has_ci(self):
+        ds = make_ds(
+            {
+                "income": [50000, 61000, 45000, 72000, 55000, 48000],
+                "education": [12, 16, 9, 18, 14, 11],
+            }
+        )
+        r = execute_analysis(
+            "linear_regression",
+            ds,
+            get_var(ds, "income"),
+            [get_var(ds, "education")],
+        )
+        assert r["errors"] == []
+        chart = r["charts"][0]
+        assert chart["chart_type"] == "scatter_with_line"
+        assert "ci_lower" in chart and "ci_upper" in chart
+
+
+class TestCorrelationPairwiseComplete:
+    def test_pearson_uses_complete_pairs_only(self):
+        from scipy import stats as sps
+
+        x = [1.0, 2.0, None, 4.0, 5.0, None, 7.0, 8.0, 9.0, 10.0]
+        y = [None, 2.1, 3.2, 3.9, None, 6.1, 7.2, 8.1, 9.3, 10.2]
+        ds = make_ds({"x": x, "y": y})
+        r = execute_analysis(
+            "pearson_correlation", ds, get_var(ds, "y"), [get_var(ds, "x")]
+        )
+        assert r["errors"] == []
+        assert r["statistics"]["n"] == 6
+
+        complete_x = [2.0, 4.0, 7.0, 8.0, 9.0, 10.0]
+        complete_y = [2.1, 3.9, 7.2, 8.1, 9.3, 10.2]
+        expected_r, _ = sps.pearsonr(complete_x, complete_y)
+        assert abs(r["statistics"]["r"] - expected_r) < 1e-9
+
+    def test_spearman_uses_complete_pairs_only(self):
+        x = [1.0, 2.0, None, 4.0, 5.0, None, 7.0, 8.0, 9.0, 10.0]
+        y = [None, 2.1, 3.2, 3.9, None, 6.1, 7.2, 8.1, 9.3, 10.2]
+        ds = make_ds({"x": x, "y": y})
+        r = execute_analysis(
+            "spearman_correlation", ds, get_var(ds, "y"), [get_var(ds, "x")]
+        )
+        assert r["errors"] == []
+        assert r["statistics"]["n"] == 6
+
+    def test_pearson_with_different_missing_counts_does_not_crash(self):
+        x = [1.0, 2.0, 3.0, 4.0, None, 6.0, 7.0, 8.0]
+        y = [1.1, None, 3.2, None, 5.1, None, 7.3, 8.2]
+        ds = make_ds({"x": x, "y": y})
+        r = execute_analysis(
+            "pearson_correlation", ds, get_var(ds, "y"), [get_var(ds, "x")]
+        )
+        assert r["errors"] == []
+        assert r["statistics"]["n"] == 4
+
 
 class TestRegistry:
     def test_all_methods_registered(self):

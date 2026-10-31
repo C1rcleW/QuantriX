@@ -4,14 +4,15 @@ from __future__ import annotations
 
 from uuid import UUID
 
+from quantrix.core.dataset import Dataset
 from quantrix.dag.graph import AnalysisDAG, NodeKind, ProvenanceNode
 
 
 class OperationTracker:
-    def __init__(self):
+    def __init__(self) -> None:
         self.dag = AnalysisDAG()
 
-    def record_import(self, dataset, file_path):
+    def record_import(self, dataset: Dataset, file_path: str) -> str:
         node = ProvenanceNode(
             kind=NodeKind.IMPORT,
             label=f"Import {dataset.name}",
@@ -22,7 +23,13 @@ class OperationTracker:
         self.dag.add_node(node)
         return str(node.id)
 
-    def record_analysis(self, method_name, params, depends_on=None, label=""):
+    def record_analysis(
+        self,
+        method_name: str,
+        params: dict[str, object],
+        depends_on: str | list[str] | None = None,
+        label: str = "",
+    ) -> str:
         node = ProvenanceNode(
             kind=NodeKind.ANALYSIS,
             label=label or method_name,
@@ -37,7 +44,12 @@ class OperationTracker:
                 self.dag.add_edge(UUID(dep_id), node.id, "depends_on")
         return str(node.id)
 
-    def record_transform(self, transform_name, params, depends_on=None):
+    def record_transform(
+        self,
+        transform_name: str,
+        params: dict[str, object],
+        depends_on: str | list[str] | None = None,
+    ) -> str:
         node = ProvenanceNode(
             kind=NodeKind.TRANSFORM,
             label=transform_name,
@@ -53,16 +65,16 @@ class OperationTracker:
         return str(node.id)
 
 
-_tracker = None
+_tracker: OperationTracker | None = None
 
 
-def get_tracker():
+def get_tracker() -> OperationTracker:
     global _tracker
     if _tracker is None:
         _tracker = OperationTracker()
     return _tracker
 
 
-def reset_tracker():
+def reset_tracker() -> None:
     global _tracker
     _tracker = OperationTracker()

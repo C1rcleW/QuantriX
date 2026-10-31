@@ -66,7 +66,7 @@ def bar(
     categories: list[str], values: list[float], title: str, x_label: str = "", y_label: str = ""
 ) -> dict[str, Any]:
     """Build simple bar chart."""
-    data = [{"name": str(c), "value": v} for c, v in zip(categories, values)]
+    data = [{"name": str(c), "value": v} for c, v in zip(categories, values, strict=False)]
     return {"chart_type": "bar", "title": title, "x_label": x_label, "y_label": y_label, "data": data}
 
 

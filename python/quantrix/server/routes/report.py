@@ -5,6 +5,8 @@ POST   /api/report/generate   — Generate an academic report
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -20,7 +22,7 @@ class SectionInput(BaseModel):
     heading: str = ""
     subheading: str = ""
     interpretation: str = ""
-    tables: list[dict] = []
+    tables: list[dict[str, Any]] = []
     safety_notes: list[str] = []
 
 
@@ -29,7 +31,7 @@ class ReportRequest(BaseModel):
     dataset_id: str | None = None
     format: str = "apa"
     sections: list[SectionInput] = []
-    dataset_info: dict | None = None
+    dataset_info: dict[str, Any] | None = None
 
 
 class ReportResponse(BaseModel):

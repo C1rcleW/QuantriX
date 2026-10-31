@@ -1,7 +1,9 @@
 """Group comparison: t-test, ANOVA, non-parametric."""
 
-from scipy import stats as sps
+from scipy import stats as sps  # type: ignore[import-untyped]
 
+from quantrix.core.dataset import Dataset
+from quantrix.core.metadata import VariableMetadata
 from quantrix.stats.base import BaseStatMethod, StatResult
 from quantrix.viz import box_plot, grouped_bar
 
@@ -10,7 +12,13 @@ class IndependentTTest(BaseStatMethod):
     method_name = "independent_ttest"
     method_family = "comparison"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None or not ivs:
             return StatResult(
                 method_name=self.method_name,
@@ -87,7 +95,13 @@ class OneWayANOVA(BaseStatMethod):
     method_name = "oneway_anova"
     method_family = "comparison"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None or not ivs:
             return StatResult(
                 method_name=self.method_name,
@@ -159,7 +173,13 @@ class MannWhitney(BaseStatMethod):
     method_name = "mann_whitney"
     method_family = "comparison"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None or not ivs:
             return StatResult(
                 method_name=self.method_name,
@@ -201,7 +221,13 @@ class KruskalWallis(BaseStatMethod):
     method_name = "kruskal_wallis"
     method_family = "comparison"
 
-    def execute(self, dataset, dv, ivs=None, **params):
+    def execute(
+        self,
+        dataset: Dataset,
+        dv: VariableMetadata | None,
+        ivs: list[VariableMetadata] | None = None,
+        **params: object,
+    ) -> StatResult:
         if dv is None or not ivs:
             return StatResult(
                 method_name=self.method_name,

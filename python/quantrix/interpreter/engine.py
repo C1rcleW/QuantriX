@@ -7,7 +7,9 @@ in their papers.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -39,7 +41,10 @@ class ResultInterpreter:
     """
 
     def interpret(
-        self, method_name: str, stats: dict, safety_warnings: list[dict] | None = None
+        self,
+        method_name: str,
+        stats: dict[str, Any],
+        safety_warnings: list[dict[str, Any]] | None = None,
     ) -> InterpretationResult:
         """Generate an interpretation from analysis statistics.
 
@@ -54,14 +59,15 @@ class ResultInterpreter:
         from quantrix.interpreter.template_registry import get as get_template
 
         template = get_template(method_name)
-        detailed = ""
         key_findings: list[str] = []
         limitations: list[str] = []
+        summary = self._build_summary(method_name, stats)
+        detailed = summary
 
         if template:
             try:
                 # Fill defaults for optional template fields
-                defaults = dict.fromkeys(
+                defaults: dict[str, Any] = dict.fromkeys(
                     [
                         "cell_note",
                         "group_table",
@@ -76,6 +82,9 @@ class ResultInterpreter:
                         "n_groups",
                         "n",
                         "n_valid",
+                        "mode_pct",
+                        "strength",
+                        "direction",
                     ],
                     "",
                 )
@@ -83,13 +92,11 @@ class ResultInterpreter:
                 defaults["sds"] = []
                 defaults["ns"] = []
                 defaults["missing_pct"] = 0.0
+                defaults["mode_pct"] = 0.0
                 defaults.update(stats)
                 detailed = template.format(**defaults)
-            except KeyError as e:
-                detailed = f"(Template error: missing key {e})"
-
-        # Build summary
-        summary = self._build_summary(method_name, stats)
+            except (KeyError, ValueError, TypeError, IndexError):
+                detailed = summary
 
         # Extract key findings
         key_findings = self._extract_key_findings(method_name, stats)
@@ -108,7 +115,16 @@ class ResultInterpreter:
             limitations=limitations,
         )
 
-    def _build_summary(self, method_name: str, stats: dict) -> str:
+    @staticmethod
+    def _finite(value: Any) -> float | None:
+        """Return a finite float, or None for missing/invalid/non-finite values."""
+        try:
+            result = float(value)
+        except (TypeError, ValueError):
+            return None
+        return result if math.isfinite(result) else None
+
+    def _build_summary(self, method_name: str, stats: dict[str, Any]) -> str:
         """Build a one-sentence summary."""
         from quantrix.interpreter.template_registry import (
             interpret_cohens_d,
@@ -116,58 +132,67 @@ class ResultInterpreter:
             interpret_p_value,
         )
 
-        p = stats.get("p_value")
-        dv = stats.get("dv_label", "the outcome")
-        iv = stats.get("iv_label", "the predictor")
+        p = self._finite(stats.get("p_value"))
+        dv = str(stats.get("dv_label") or "the outcome")
+        iv = str(stats.get("iv_label") or "the predictor")
+        if p is not None:
+            p_text = interpret_p_value(p)
+        else:
+            p_text = "not evaluated (insufficient or invalid statistics)"
 
         if method_name == "independent_ttest":
-            sig_text = ""
-            if p is not None:
-                sig_text = interpret_p_value(float(p))
-            d = stats.get("cohens_d")
+            sig_text = p_text
+            d = self._finite(stats.get("cohens_d"))
             es_text = ""
             if d is not None:
-                es_text = f", {interpret_cohens_d(float(d))} effect size (d = {float(d):.2f})"
+                es_text = f", {interpret_cohens_d(d)} effect size (d = {d:.2f})"
             return f"The difference in {dv} between groups of {iv} was {sig_text}{es_text}."
 
         elif method_name in ("oneway_anova", "kruskal_wallis"):
-            sig_text = interpret_p_value(float(p)) if p is not None else ""
-            eta = stats.get("eta_squared")
-            es_text = f", η² = {float(eta):.3f}" if eta is not None else ""
+            sig_text = p_text
+            eta = self._finite(stats.get("eta_squared"))
+            es_text = f", η² = {eta:.3f}" if eta is not None else ""
             return f"The comparison of {dv} across groups of {iv} was {sig_text}{es_text}."
 
         elif method_name == "pearson_correlation":
-            r_val = stats.get("r")
-            if r_val is not None:
-                r = float(r_val)
+            r = self._finite(stats.get("r"))
+            if r is not None:
                 strength = interpret_correlation_strength(r)
                 direction = "positive" if r >= 0 else "negative"
-                sig_text = interpret_p_value(float(p)) if p is not None else ""
                 return (
                     f"A {strength} {direction} correlation was found "
-                    f"between {dv} and {iv}, r = {r:.3f}, {sig_text}."
+                    f"between {dv} and {iv}, r = {r:.3f}, {p_text}."
                 )
             return f"Correlation between {dv} and {iv} was computed."
 
+        elif method_name == "spearman_correlation":
+            rho = self._finite(stats.get("rho"))
+            if rho is not None:
+                strength = interpret_correlation_strength(rho)
+                direction = "positive" if rho >= 0 else "negative"
+                return (
+                    f"A {strength} {direction} monotonic correlation was found "
+                    f"between {dv} and {iv}, rho = {rho:.3f}, {p_text}."
+                )
+            return f"Spearman correlation between {dv} and {iv} was computed."
+
         elif method_name == "linear_regression":
-            r2 = stats.get("r_squared")
-            sig_text = interpret_p_value(float(p)) if p is not None else ""
+            r2 = self._finite(stats.get("r_squared"))
             if r2 is not None:
                 return (
-                    f"The model predicting {dv} was {sig_text}, "
-                    f"explaining {float(r2) * 100:.1f}% of the variance."
+                    f"The model predicting {dv} was {p_text}, "
+                    f"explaining {r2 * 100:.1f}% of the variance."
                 )
-            return f"Regression model for {dv} was {sig_text}."
+            return f"Regression model for {dv} was {p_text}."
 
         elif method_name == "chi_square":
-            sig_text = interpret_p_value(float(p)) if p is not None else ""
-            return f"The association between {dv} and {iv} was {sig_text}."
+            return f"The association between {dv} and {iv} was {p_text}."
 
         elif method_name in ("descriptive_statistics", "descriptives"):
-            mean = stats.get("mean")
+            mean = self._finite(stats.get("mean"))
             n = stats.get("n_valid", "N/A")
             if mean is not None:
-                return f"The average {dv} was {float(mean):.2f} (N = {n})."
+                return f"The average {dv} was {mean:.2f} (N = {n})."
             return f"Descriptive statistics for {dv} (N = {n})."
 
         elif method_name in ("frequency_analysis", "frequencies"):
@@ -180,24 +205,22 @@ class ResultInterpreter:
         return f"Analysis of {dv} completed."
 
     @staticmethod
-    def _extract_key_findings(method_name: str, stats: dict) -> list[str]:
+    def _extract_key_findings(method_name: str, stats: dict[str, Any]) -> list[str]:
         """Extract key findings as bullet points."""
         findings: list[str] = []
 
-        p = stats.get("p_value")
-        if p is not None and float(p) < 0.05:
-            findings.append(f"Statistically significant result (p = {float(p):.4f})")
+        p = ResultInterpreter._finite(stats.get("p_value"))
+        if p is not None and p < 0.05:
+            findings.append(f"Statistically significant result (p = {p:.4f})")
 
-        d = stats.get("cohens_d")
+        d = ResultInterpreter._finite(stats.get("cohens_d"))
         if d is not None:
             from quantrix.interpreter.template_registry import interpret_cohens_d
 
-            findings.append(
-                f"Effect size: {interpret_cohens_d(float(d))} (Cohen's d = {float(d):.2f})"
-            )
+            findings.append(f"Effect size: {interpret_cohens_d(d)} (Cohen's d = {d:.2f})")
 
-        r2 = stats.get("r_squared")
+        r2 = ResultInterpreter._finite(stats.get("r_squared"))
         if r2 is not None:
-            findings.append(f"Model explains {float(r2) * 100:.1f}% of variance")
+            findings.append(f"Model explains {r2 * 100:.1f}% of variance")
 
         return findings

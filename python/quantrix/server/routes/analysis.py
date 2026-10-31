@@ -7,11 +7,14 @@ POST   /api/analysis/execute        — Execute a statistical analysis
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from quantrix.dag.tracker import get_tracker
 from quantrix.planner.recommendation import ResearchPlanner
+from quantrix.safety.engine import create_default_safety_net
 from quantrix.server.registry import get_dataset, get_import_node_id
 from quantrix.stats.registry import execute_analysis
 
@@ -34,7 +37,8 @@ class PlanResponse(BaseModel):
     question: str
     question_type: str
     design: str
-    recommendations: list[dict]
+    recommendations: list[dict[str, Any]]
+    notes: list[str] = Field(default_factory=list)
 
 
 @router.post("/plan", response_model=PlanResponse)
@@ -55,6 +59,7 @@ def get_analysis_plan(request: PlanRequest) -> PlanResponse:
         question_type=plan["question_type"],
         design=plan["design"],
         recommendations=plan["recommendations"],
+        notes=plan["notes"],
     )
 
 
@@ -78,6 +83,7 @@ def get_analysis_plan_structured(request: PlanStructuredRequest) -> PlanResponse
         question_type=plan["question_type"],
         design=plan["design"],
         recommendations=plan["recommendations"],
+        notes=plan["notes"],
     )
 
 
@@ -89,10 +95,25 @@ class ExecuteRequest(BaseModel):
 
 
 @router.post("/execute")
-def execute_analysis_route(request: ExecuteRequest) -> dict:
+def execute_analysis_route(request: ExecuteRequest) -> dict[str, Any]:
     dataset = get_dataset(request.dataset_id)
-    dv = dataset.get_variable(request.dependent) if request.dependent else None
-    ivs = [dataset.get_variable(n) for n in request.independents]
+    try:
+        dv = dataset.get_variable(request.dependent) if request.dependent else None
+        ivs = [dataset.get_variable(n) for n in request.independents]
+    except KeyError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+    safety = create_default_safety_net().check(request.method_name, dv, ivs, dataset)
+    if safety.has_errors:
+        details = "; ".join(
+            f"{warning.message} {warning.suggestion}".strip()
+            for warning in safety.errors
+        )
+        raise HTTPException(
+            status_code=409,
+            detail=f"Analysis blocked by safety check: {details}",
+        )
+
     result = execute_analysis(request.method_name, dataset, dv, ivs)
 
     tracker = get_tracker()

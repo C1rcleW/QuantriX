@@ -101,3 +101,26 @@ class TestInterpretAPI:
         assert r.status_code == 200
         data = r.json()
         assert "35.2" in data["detailed"]
+
+    def test_interpret_handles_null_statistics(self, client):
+        r = client.post(
+            "/api/chat/interpret",
+            json={
+                "method_name": "independent_ttest",
+                "statistics": {
+                    "dv_label": "Score",
+                    "iv_label": "Group",
+                    "group_labels": ["A", "B"],
+                    "means": [1.0, None],
+                    "sds": [None, 1.29],
+                    "ns": [1, 4],
+                    "p_value": None,
+                    "cohens_d": None,
+                },
+            },
+        )
+        assert r.status_code == 200
+        data = r.json()
+        assert data["summary"]
+        assert data["detailed"]
+        assert "Template error" not in data["detailed"]

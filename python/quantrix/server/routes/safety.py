@@ -5,6 +5,8 @@ POST   /api/safety/check   — Run safety rules for a method + variables
 
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -22,7 +24,7 @@ class SafetyCheckRequest(BaseModel):
 
 
 @router.post("/check")
-def run_safety_check(request: SafetyCheckRequest) -> dict:
+def run_safety_check(request: SafetyCheckRequest) -> dict[str, Any]:
     """Run all safety rules for a proposed analysis.
 
     Returns errors, warnings, and info messages.

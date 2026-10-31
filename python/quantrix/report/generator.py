@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any
 
 
 @dataclass
@@ -18,7 +19,7 @@ class ReportSection:
     heading: str  # e.g., "Descriptive Statistics"
     subheading: str = ""  # e.g., "Income Distribution"
     interpretation: str = ""  # Natural language interpretation
-    tables: list[dict] = field(default_factory=list)
+    tables: list[dict[str, Any]] = field(default_factory=list)
     # Each table: {"title": str, "columns": [...], "rows": [[...]]}
     figures: list[str] = field(default_factory=list)  # Figure descriptions
     safety_notes: list[str] = field(default_factory=list)
@@ -57,7 +58,7 @@ class ReportGenerator:
     def create_report(
         self,
         title: str,
-        dataset_info: dict | None = None,
+        dataset_info: dict[str, Any] | None = None,
         sections: list[ReportSection] | None = None,
         fmt: str = "apa",
     ) -> Report:
@@ -188,7 +189,7 @@ class ReportGenerator:
         return "\n".join(parts)
 
     @staticmethod
-    def _render_table_html(table: dict) -> str:
+    def _render_table_html(table: dict[str, Any]) -> str:
         lines: list[str] = ["<table>"]
         title = table.get("title", "")
         if title:
@@ -199,7 +200,7 @@ class ReportGenerator:
             for c in columns:
                 lines.append(f"<th>{c}</th>")
             lines.append("</tr></thead>")
-        rows: list[list] = table.get("rows", [])
+        rows: list[list[Any]] = table.get("rows", [])
         if rows:
             lines.append("<tbody>")
             for row in rows:
@@ -214,7 +215,7 @@ class ReportGenerator:
         lines.append("</table>")
         return "\n".join(lines)
 
-    def _render_table_markdown(self, table: dict) -> list[str]:
+    def _render_table_markdown(self, table: dict[str, Any]) -> list[str]:
         """Render a table dict as Markdown."""
         lines: list[str] = []
 
@@ -224,7 +225,7 @@ class ReportGenerator:
             lines.append("")
 
         columns: list[str] = table.get("columns", [])
-        rows: list[list] = table.get("rows", [])
+        rows: list[list[Any]] = table.get("rows", [])
 
         if not columns:
             # Simple key-value table
@@ -257,7 +258,7 @@ class ReportGenerator:
 def section_from_interpretation(
     heading: str,
     interpretation: str,
-    tables: list[dict] | None = None,
+    tables: list[dict[str, Any]] | None = None,
     safety_notes: list[str] | None = None,
     subheading: str = "",
 ) -> ReportSection:

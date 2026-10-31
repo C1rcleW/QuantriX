@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
+import polars as pl
 from pydantic import BaseModel, Field
 
 from quantrix.core.metadata import VariableMetadata
@@ -41,7 +42,7 @@ class Dataset(BaseModel):
     variables: list[VariableMetadata] = Field(default_factory=list)
 
     # Data (Polars DataFrame — excluded from JSON serialization)
-    data: object | None = Field(default=None, exclude=True)
+    data: pl.DataFrame | None = Field(default=None, exclude=True)
 
     # Provenance
     imported_at: datetime = Field(default_factory=datetime.utcnow)

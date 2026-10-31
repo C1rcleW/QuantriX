@@ -131,10 +131,15 @@ class DecisionTree:
                     display_name="Crosstabulation",
                     method_family="descriptive",
                     confidence=0.9,
-                    reason="Crosstabulation shows how the dependent variable distributes across categories.",
+                    reason=(
+                        "Crosstabulation shows how the dependent variable distributes "
+                        "across categories. Not implemented in this build; frequency "
+                        "analysis covers the marginal distribution."
+                    ),
                     assumptions=[
                         "Expected frequencies should be ≥ 5 in ≥ 80% of cells for chi-square."
                     ],
+                    alternatives=["Frequency analysis (executable)", "Chi-square test of independence"],
                 )
             )
 
@@ -148,6 +153,11 @@ class DecisionTree:
         independents: list[VariableMetadata],
     ) -> list[MethodCandidate]:
         if dependent is None or not independents:
+            return []
+        if (
+            not independents[0].is_categorical
+            or independents[0].variable_type == VariableType.STRING
+        ):
             return []
 
         candidates: list[MethodCandidate] = []
@@ -278,8 +288,10 @@ class DecisionTree:
 
         candidates: list[MethodCandidate] = []
         iv = independents[0]
+        if iv.variable_type == VariableType.STRING:
+            return []
 
-        # Continuous × Continuous → Pearson
+        # Continuous × Continuous → Pearson + Spearman
         if dependent.is_continuous and iv.is_continuous:
             candidates.append(
                 MethodCandidate(
@@ -306,31 +318,125 @@ class DecisionTree:
                     assumptions=["Monotonic relationship."],
                 )
             )
+            return candidates
 
-        # Ordinal × Ordinal or Ordinal × Continuous → Spearman
-        elif (
-            dependent.variable_type == VariableType.ORDINAL
-            or iv.variable_type == VariableType.ORDINAL
-        ):
+        # Continuous outcome × categorical predictor → executable ANOVA/t-test
+        if dependent.is_continuous and iv.is_categorical:
+            n_groups = iv.n_unique or 2
+            if n_groups == 2:
+                candidates.append(
+                    MethodCandidate(
+                        method_name="independent_ttest",
+                        display_name="Independent Samples t-test",
+                        method_family="comparison",
+                        confidence=0.85,
+                        reason=(
+                            "Compares the continuous outcome across the two categories. "
+                            "This is the executable form of the continuous–categorical "
+                            "association in the current build."
+                        ),
+                        assumptions=[
+                            "Normality within each group (approximately).",
+                            "Homogeneity of variance.",
+                            "Independence of observations.",
+                        ],
+                        alternatives=[
+                            "Mann-Whitney U (nonparametric)",
+                            "Eta-squared (not yet implemented separately)",
+                        ],
+                    )
+                )
+            else:
+                candidates.append(
+                    MethodCandidate(
+                        method_name="oneway_anova",
+                        display_name="One-Way ANOVA",
+                        method_family="comparison",
+                        confidence=0.85,
+                        reason=(
+                            "Tests whether the continuous outcome differs across the "
+                            f"{n_groups} categories. This is the executable form of the "
+                            "continuous–categorical association in the current build."
+                        ),
+                        assumptions=[
+                            "Normality within each group (approximately).",
+                            "Homogeneity of variance.",
+                            "Independence of observations.",
+                        ],
+                        alternatives=[
+                            "Kruskal-Wallis test (nonparametric)",
+                            "Eta-squared (not yet implemented separately)",
+                        ],
+                    )
+                )
+
+            candidates.append(
+                MethodCandidate(
+                    method_name="eta_squared",
+                    display_name="Eta-Squared (η²)",
+                    method_family="correlation",
+                    confidence=0.75,
+                    reason=(
+                        "Quantifies association strength between a continuous and "
+                        "categorical variable. Not implemented separately in this build; "
+                        "ANOVA/t-test provides the corresponding significance test."
+                    ),
+                    assumptions=["Independence of observations."],
+                    alternatives=["One-way ANOVA / independent t-test (executable)"],
+                )
+            )
+            return candidates
+
+        # Ordinal outcome × continuous predictor → Spearman
+        if dependent.variable_type == VariableType.ORDINAL and iv.is_continuous:
             candidates.append(
                 MethodCandidate(
                     method_name="spearman_correlation",
                     display_name="Spearman Rank Correlation",
                     method_family="correlation",
-                    confidence=0.95,
-                    reason="Appropriate when at least one variable is ordinal.",
+                    confidence=0.9,
+                    reason="Appropriate for an ordinal outcome and a continuous predictor.",
                     assumptions=["Monotonic relationship."],
                 )
             )
+            return candidates
 
-        # Nominal × Nominal → Chi-square
-        elif dependent.is_categorical and iv.is_categorical:
+        # Categorical outcome × categorical predictor → ordinal-aware options
+        if dependent.is_categorical and iv.is_categorical:
+            if (
+                dependent.variable_type == VariableType.ORDINAL
+                and iv.variable_type == VariableType.ORDINAL
+            ):
+                candidates.append(
+                    MethodCandidate(
+                        method_name="spearman_correlation",
+                        display_name="Spearman Rank Correlation",
+                        method_family="correlation",
+                        confidence=0.9,
+                        reason="Appropriate for two ordinal variables.",
+                        assumptions=["Monotonic relationship."],
+                    )
+                )
+            elif (
+                dependent.variable_type == VariableType.ORDINAL
+                and iv.variable_type == VariableType.NOMINAL
+            ):
+                candidates.append(
+                    MethodCandidate(
+                        method_name="kruskal_wallis",
+                        display_name="Kruskal-Wallis H Test",
+                        method_family="comparison",
+                        confidence=0.9,
+                        reason="Compares an ordinal outcome across nominal groups.",
+                        assumptions=["Independence of observations."],
+                    )
+                )
             candidates.append(
                 MethodCandidate(
                     method_name="chi_square",
                     display_name="Chi-Square Test of Independence",
                     method_family="correlation",
-                    confidence=0.95,
+                    confidence=0.8,
                     reason="Tests association between two categorical variables.",
                     assumptions=[
                         "Expected frequency ≥ 5 in ≥ 80% of cells.",
@@ -338,19 +444,40 @@ class DecisionTree:
                     ],
                 )
             )
+            return candidates
 
-        # Nominal × Continuous → Point-biserial or eta-squared
-        elif dependent.is_continuous and iv.is_categorical:
+        # Categorical outcome × continuous predictor → logistic regression family
+        if dependent.is_categorical and iv.is_continuous:
+            binary = dependent.n_unique == 2
+            method_name = "binary_logistic" if binary else "multinomial_logistic"
+            display_name = (
+                "Binary Logistic Regression"
+                if binary
+                else "Multinomial Logistic Regression"
+            )
             candidates.append(
                 MethodCandidate(
-                    method_name="eta_squared",
-                    display_name="Eta-Squared (η²)",
-                    method_family="correlation",
+                    method_name=method_name,
+                    display_name=display_name,
+                    method_family="regression",
                     confidence=0.8,
-                    reason="Measures association strength between a continuous and categorical variable.",
-                    assumptions=["Independence of observations."],
+                    reason=(
+                        "Association between a categorical outcome and a continuous "
+                        "predictor is usually modeled with logistic regression. Not "
+                        "implemented in this build; shown as the statistically "
+                        "appropriate target method."
+                    ),
+                    assumptions=[
+                        "Observations are independent.",
+                        "No severe multicollinearity.",
+                    ],
+                    alternatives=[
+                        "Chi-square after categorizing the continuous predictor (not recommended)",
+                        "Point-biserial correlation (binary outcome only; not implemented)",
+                    ],
                 )
             )
+            return candidates
 
         return candidates
 
@@ -368,6 +495,8 @@ class DecisionTree:
 
         # Continuous DV → Linear regression
         if dependent.is_continuous:
+            if any(iv.variable_type == VariableType.STRING for iv in independents):
+                return []
             candidates.append(
                 MethodCandidate(
                     method_name="linear_regression",
@@ -396,12 +525,20 @@ class DecisionTree:
                     display_name="Binary Logistic Regression",
                     method_family="regression",
                     confidence=0.95,
-                    reason="Models probability of a binary outcome based on predictors.",
+                    reason=(
+                        "Models probability of a binary outcome based on predictors. "
+                        "Not implemented in this build; shown as the statistically "
+                        "appropriate target method."
+                    ),
                     assumptions=[
                         "Binary dependent variable (0/1).",
                         "Linearity in the logit: continuous predictors linearly related to log-odds.",
                         "No severe multicollinearity.",
                         "Independence of observations.",
+                    ],
+                    alternatives=[
+                        "Chi-square test of independence (association only)",
+                        "Recode the outcome or choose a continuous outcome",
                     ],
                 )
             )
@@ -414,10 +551,18 @@ class DecisionTree:
                     display_name="Multinomial Logistic Regression",
                     method_family="regression",
                     confidence=0.85,
-                    reason="Models a nominal outcome with more than 2 categories.",
+                    reason=(
+                        "Models a nominal outcome with more than 2 categories. "
+                        "Not implemented in this build; shown as the statistically "
+                        "appropriate target method."
+                    ),
                     assumptions=[
                         "Independence of irrelevant alternatives (IIA).",
                         "No severe multicollinearity.",
+                    ],
+                    alternatives=[
+                        "Chi-square test of independence (association only)",
+                        "Collapse categories and use a binary method when available",
                     ],
                 )
             )
@@ -430,10 +575,17 @@ class DecisionTree:
                     display_name="Ordinal Logistic Regression",
                     method_family="regression",
                     confidence=0.9,
-                    reason="Models an ordered categorical outcome.",
+                    reason=(
+                        "Models an ordered categorical outcome. Not implemented in this "
+                        "build; shown as the statistically appropriate target method."
+                    ),
                     assumptions=[
                         "Proportional odds assumption.",
                         "No severe multicollinearity.",
+                    ],
+                    alternatives=[
+                        "Spearman correlation / Kruskal-Wallis (exploratory association)",
+                        "Use an ordinal outcome model when it becomes available",
                     ],
                 )
             )

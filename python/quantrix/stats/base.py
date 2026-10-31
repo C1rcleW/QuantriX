@@ -8,6 +8,7 @@ and result formatting.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 import polars as pl
 
@@ -25,7 +26,7 @@ class StatResult:
 
     statistics: dict[str, float] = field(default_factory=dict)
     effect_sizes: dict[str, float] = field(default_factory=dict)
-    tables: list[dict] = field(default_factory=list)
+    tables: list[dict[str, Any]] = field(default_factory=list)
 
     dv_label: str = ""
     iv_label: str = ""
@@ -35,9 +36,9 @@ class StatResult:
 
     errors: list[str] = field(default_factory=list)
     misc: dict[str, object] = field(default_factory=dict)
-    charts: list[dict] = field(default_factory=list)
+    charts: list[dict[str, Any]] = field(default_factory=list)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "method_name": self.method_name,
             "method_family": self.method_family,
@@ -96,10 +97,10 @@ class BaseStatMethod:
     @staticmethod
     def _cohens_d(mean1: float, mean2: float, sd1: float, sd2: float, n1: int, n2: int) -> float:
         """Cohen's d for independent groups with pooled SD."""
-        pooled_sd = (((n1 - 1) * sd1**2 + (n2 - 1) * sd2**2) / (n1 + n2 - 2)) ** 0.5
+        pooled_sd = float((((n1 - 1) * sd1**2 + (n2 - 1) * sd2**2) / (n1 + n2 - 2)) ** 0.5)
         if pooled_sd == 0:
             return 0.0
-        return abs(mean1 - mean2) / pooled_sd
+        return float(abs(mean1 - mean2) / pooled_sd)
 
     @staticmethod
     def _cohens_d_interpretation(d: float) -> str:
