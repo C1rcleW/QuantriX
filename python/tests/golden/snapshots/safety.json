@@ -1,0 +1,79 @@
+{
+  "anova_clean": {
+    "errors": [],
+    "has_errors": false,
+    "has_warnings": false,
+    "info": [
+      {
+        "message": "With 3 groups, pairwise comparisons require correction for multiple testing.",
+        "rule": "multiple_comparison",
+        "severity": "info"
+      }
+    ],
+    "is_clean": true,
+    "method_name": "oneway_anova",
+    "warnings": []
+  },
+  "chi_square_clean": {
+    "errors": [],
+    "has_errors": false,
+    "has_warnings": false,
+    "info": [],
+    "is_clean": true,
+    "method_name": "chi_square",
+    "warnings": []
+  },
+  "regression_warning": {
+    "errors": [],
+    "has_errors": false,
+    "has_warnings": true,
+    "info": [],
+    "is_clean": false,
+    "method_name": "linear_regression",
+    "warnings": [
+      {
+        "message": "Total sample size (N=24) is below the recommended minimum of 30 for linear_regression.",
+        "rule": "sample_size",
+        "severity": "warning",
+        "suggestion": "Results may lack statistical power. Consider collecting more data or using a nonparametric alternative.",
+        "variables": []
+      }
+    ]
+  },
+  "small_group_error": {
+    "errors": [
+      {
+        "message": "Group 'A' has only 1 observation(s), below the minimum of 3.",
+        "rule": "sample_size",
+        "severity": "error",
+        "suggestion": "Consider merging small groups or using a nonparametric test.",
+        "variables": [
+          "group"
+        ]
+      }
+    ],
+    "has_errors": true,
+    "has_warnings": true,
+    "info": [],
+    "is_clean": false,
+    "method_name": "independent_ttest",
+    "warnings": [
+      {
+        "message": "Total sample size (N=5) is below the recommended minimum of 6 for independent_ttest.",
+        "rule": "sample_size",
+        "severity": "warning",
+        "suggestion": "Results may lack statistical power. Consider collecting more data or using a nonparametric alternative.",
+        "variables": []
+      }
+    ]
+  },
+  "ttest_clean": {
+    "errors": [],
+    "has_errors": false,
+    "has_warnings": false,
+    "info": [],
+    "is_clean": true,
+    "method_name": "independent_ttest",
+    "warnings": []
+  }
+}

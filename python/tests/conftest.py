@@ -11,6 +11,16 @@ import pyreadstat
 import pytest
 from pyreadstat.pyclasses import MissingRange
 
+from quantrix.dag.tracker import reset_tracker
+
+
+@pytest.fixture(autouse=True)
+def _reset_dag_tracker():
+    """Keep the process-global provenance tracker isolated between tests."""
+    reset_tracker()
+    yield
+    reset_tracker()
+
 
 def create_simple_sav(path: Path) -> Path:
     """Create a minimal but comprehensive SAV file for testing.

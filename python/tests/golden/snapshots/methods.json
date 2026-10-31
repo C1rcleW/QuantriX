@@ -1,0 +1,2152 @@
+{
+  "chi_square": {
+    "charts": [
+      {
+        "chart_type": "bar",
+        "data": [
+          {
+            "name": "P",
+            "value": 12
+          },
+          {
+            "name": "Q",
+            "value": 12
+          }
+        ],
+        "title": "cat x g2",
+        "x_label": "g2",
+        "y_label": "Count"
+      }
+    ],
+    "dv_label": "cat",
+    "effect_size_text": "Cramer V=0.423",
+    "effect_sizes": {
+      "cramers_v": 0.4225771273642583
+    },
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "g2",
+    "method_family": "correlation",
+    "method_name": "chi_square",
+    "misc": {
+      "n": 24
+    },
+    "n_samples": 24,
+    "sig_text": "chisq(1)=4.29, p = 0.038",
+    "statistics": {
+      "chi_squared": 4.285714285714286,
+      "df": 1,
+      "n": 24,
+      "p_value": 0.03843393023678176
+    },
+    "tables": [
+      {
+        "columns": [
+          "g2",
+          "P",
+          "Q"
+        ],
+        "rows": [
+          [
+            "A",
+            "10",
+            "2"
+          ],
+          [
+            "B",
+            "4",
+            "8"
+          ]
+        ],
+        "title": "Crosstab: cat x g2"
+      }
+    ]
+  },
+  "descriptives": {
+    "charts": [
+      {
+        "chart_type": "histogram",
+        "data": [
+          {
+            "count": 2,
+            "x": "1.00-2.15"
+          },
+          {
+            "count": 1,
+            "x": "2.15-3.30"
+          },
+          {
+            "count": 1,
+            "x": "3.30-4.45"
+          },
+          {
+            "count": 1,
+            "x": "4.45-5.60"
+          },
+          {
+            "count": 1,
+            "x": "5.60-6.75"
+          },
+          {
+            "count": 1,
+            "x": "6.75-7.90"
+          },
+          {
+            "count": 2,
+            "x": "7.90-9.05"
+          },
+          {
+            "count": 1,
+            "x": "9.05-10.20"
+          },
+          {
+            "count": 1,
+            "x": "10.20-11.35"
+          },
+          {
+            "count": 1,
+            "x": "11.35-12.50"
+          },
+          {
+            "count": 1,
+            "x": "12.50-13.65"
+          },
+          {
+            "count": 1,
+            "x": "13.65-14.80"
+          },
+          {
+            "count": 1,
+            "x": "14.80-15.95"
+          },
+          {
+            "count": 2,
+            "x": "15.95-17.10"
+          },
+          {
+            "count": 1,
+            "x": "17.10-18.25"
+          },
+          {
+            "count": 1,
+            "x": "18.25-19.40"
+          },
+          {
+            "count": 1,
+            "x": "19.40-20.55"
+          },
+          {
+            "count": 1,
+            "x": "20.55-21.70"
+          },
+          {
+            "count": 1,
+            "x": "21.70-22.85"
+          },
+          {
+            "count": 2,
+            "x": "22.85-24.00"
+          }
+        ],
+        "density": [
+          {
+            "density": 8.4e-05,
+            "x": -10.2348
+          },
+          {
+            "density": 0.000123,
+            "x": -9.7755
+          },
+          {
+            "density": 0.000178,
+            "x": -9.3162
+          },
+          {
+            "density": 0.000254,
+            "x": -8.8569
+          },
+          {
+            "density": 0.000358,
+            "x": -8.3976
+          },
+          {
+            "density": 0.000496,
+            "x": -7.9383
+          },
+          {
+            "density": 0.000679,
+            "x": -7.479
+          },
+          {
+            "density": 0.000917,
+            "x": -7.0197
+          },
+          {
+            "density": 0.001221,
+            "x": -6.5605
+          },
+          {
+            "density": 0.001606,
+            "x": -6.1012
+          },
+          {
+            "density": 0.002083,
+            "x": -5.6419
+          },
+          {
+            "density": 0.002667,
+            "x": -5.1826
+          },
+          {
+            "density": 0.003372,
+            "x": -4.7233
+          },
+          {
+            "density": 0.004208,
+            "x": -4.264
+          },
+          {
+            "density": 0.005186,
+            "x": -3.8047
+          },
+          {
+            "density": 0.006314,
+            "x": -3.3454
+          },
+          {
+            "density": 0.007593,
+            "x": -2.8862
+          },
+          {
+            "density": 0.009023,
+            "x": -2.4269
+          },
+          {
+            "density": 0.010598,
+            "x": -1.9676
+          },
+          {
+            "density": 0.012306,
+            "x": -1.5083
+          },
+          {
+            "density": 0.01413,
+            "x": -1.049
+          },
+          {
+            "density": 0.01605,
+            "x": -0.5897
+          },
+          {
+            "density": 0.01804,
+            "x": -0.1304
+          },
+          {
+            "density": 0.020072,
+            "x": 0.3289
+          },
+          {
+            "density": 0.022115,
+            "x": 0.7882
+          },
+          {
+            "density": 0.024139,
+            "x": 1.2474
+          },
+          {
+            "density": 0.026114,
+            "x": 1.7067
+          },
+          {
+            "density": 0.028011,
+            "x": 2.166
+          },
+          {
+            "density": 0.029808,
+            "x": 2.6253
+          },
+          {
+            "density": 0.031483,
+            "x": 3.0846
+          },
+          {
+            "density": 0.033022,
+            "x": 3.5439
+          },
+          {
+            "density": 0.034414,
+            "x": 4.0032
+          },
+          {
+            "density": 0.035655,
+            "x": 4.4625
+          },
+          {
+            "density": 0.036744,
+            "x": 4.9217
+          },
+          {
+            "density": 0.037685,
+            "x": 5.381
+          },
+          {
+            "density": 0.038487,
+            "x": 5.8403
+          },
+          {
+            "density": 0.039159,
+            "x": 6.2996
+          },
+          {
+            "density": 0.039715,
+            "x": 6.7589
+          },
+          {
+            "density": 0.040167,
+            "x": 7.2182
+          },
+          {
+            "density": 0.04053,
+            "x": 7.6775
+          },
+          {
+            "density": 0.040816,
+            "x": 8.1368
+          },
+          {
+            "density": 0.041038,
+            "x": 8.5961
+          },
+          {
+            "density": 0.041209,
+            "x": 9.0553
+          },
+          {
+            "density": 0.041337,
+            "x": 9.5146
+          },
+          {
+            "density": 0.041432,
+            "x": 9.9739
+          },
+          {
+            "density": 0.041501,
+            "x": 10.4332
+          },
+          {
+            "density": 0.041549,
+            "x": 10.8925
+          },
+          {
+            "density": 0.041582,
+            "x": 11.3518
+          },
+          {
+            "density": 0.041601,
+            "x": 11.8111
+          },
+          {
+            "density": 0.041611,
+            "x": 12.2704
+          },
+          {
+            "density": 0.041611,
+            "x": 12.7296
+          },
+          {
+            "density": 0.041601,
+            "x": 13.1889
+          },
+          {
+            "density": 0.041582,
+            "x": 13.6482
+          },
+          {
+            "density": 0.041549,
+            "x": 14.1075
+          },
+          {
+            "density": 0.041501,
+            "x": 14.5668
+          },
+          {
+            "density": 0.041432,
+            "x": 15.0261
+          },
+          {
+            "density": 0.041337,
+            "x": 15.4854
+          },
+          {
+            "density": 0.041209,
+            "x": 15.9447
+          },
+          {
+            "density": 0.041038,
+            "x": 16.4039
+          },
+          {
+            "density": 0.040816,
+            "x": 16.8632
+          },
+          {
+            "density": 0.04053,
+            "x": 17.3225
+          },
+          {
+            "density": 0.040167,
+            "x": 17.7818
+          },
+          {
+            "density": 0.039715,
+            "x": 18.2411
+          },
+          {
+            "density": 0.039159,
+            "x": 18.7004
+          },
+          {
+            "density": 0.038487,
+            "x": 19.1597
+          },
+          {
+            "density": 0.037685,
+            "x": 19.619
+          },
+          {
+            "density": 0.036744,
+            "x": 20.0783
+          },
+          {
+            "density": 0.035655,
+            "x": 20.5375
+          },
+          {
+            "density": 0.034414,
+            "x": 20.9968
+          },
+          {
+            "density": 0.033022,
+            "x": 21.4561
+          },
+          {
+            "density": 0.031483,
+            "x": 21.9154
+          },
+          {
+            "density": 0.029808,
+            "x": 22.3747
+          },
+          {
+            "density": 0.028011,
+            "x": 22.834
+          },
+          {
+            "density": 0.026114,
+            "x": 23.2933
+          },
+          {
+            "density": 0.024139,
+            "x": 23.7526
+          },
+          {
+            "density": 0.022115,
+            "x": 24.2118
+          },
+          {
+            "density": 0.020072,
+            "x": 24.6711
+          },
+          {
+            "density": 0.01804,
+            "x": 25.1304
+          },
+          {
+            "density": 0.01605,
+            "x": 25.5897
+          },
+          {
+            "density": 0.01413,
+            "x": 26.049
+          },
+          {
+            "density": 0.012306,
+            "x": 26.5083
+          },
+          {
+            "density": 0.010598,
+            "x": 26.9676
+          },
+          {
+            "density": 0.009023,
+            "x": 27.4269
+          },
+          {
+            "density": 0.007593,
+            "x": 27.8862
+          },
+          {
+            "density": 0.006314,
+            "x": 28.3454
+          },
+          {
+            "density": 0.005186,
+            "x": 28.8047
+          },
+          {
+            "density": 0.004208,
+            "x": 29.264
+          },
+          {
+            "density": 0.003372,
+            "x": 29.7233
+          },
+          {
+            "density": 0.002667,
+            "x": 30.1826
+          },
+          {
+            "density": 0.002083,
+            "x": 30.6419
+          },
+          {
+            "density": 0.001606,
+            "x": 31.1012
+          },
+          {
+            "density": 0.001221,
+            "x": 31.5605
+          },
+          {
+            "density": 0.000917,
+            "x": 32.0197
+          },
+          {
+            "density": 0.000679,
+            "x": 32.479
+          },
+          {
+            "density": 0.000496,
+            "x": 32.9383
+          },
+          {
+            "density": 0.000358,
+            "x": 33.3976
+          },
+          {
+            "density": 0.000254,
+            "x": 33.8569
+          },
+          {
+            "density": 0.000178,
+            "x": 34.3162
+          },
+          {
+            "density": 0.000123,
+            "x": 34.7755
+          },
+          {
+            "density": 8.4e-05,
+            "x": 35.2348
+          }
+        ],
+        "title": "Distribution of x",
+        "x_label": "x",
+        "y_label": "Frequency"
+      }
+    ],
+    "dv_label": "x",
+    "effect_size_text": "",
+    "effect_sizes": {},
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "",
+    "method_family": "descriptive",
+    "method_name": "descriptives",
+    "misc": {
+      "max_val": 24.0,
+      "mean": 12.5,
+      "min_val": 1.0,
+      "missing_count": 0,
+      "missing_pct": 0.0,
+      "n": 24,
+      "n_valid": 24,
+      "skewness_text": "",
+      "std_dev": 7.0710678118654755
+    },
+    "n_samples": 24,
+    "sig_text": "N=24",
+    "statistics": {
+      "max": 24.0,
+      "mean": 12.5,
+      "median": 12.5,
+      "min": 1.0,
+      "missing_count": 0,
+      "n": 24,
+      "n_valid": 24,
+      "q1": 7.0,
+      "q3": 18.0,
+      "skewness": 0.0,
+      "std_dev": 7.0710678118654755
+    },
+    "tables": [
+      {
+        "columns": [
+          "Stat",
+          "Value"
+        ],
+        "rows": [
+          [
+            "N",
+            24
+          ],
+          [
+            "Mean",
+            12.5
+          ],
+          [
+            "SD",
+            7.07
+          ],
+          [
+            "Min",
+            1.0
+          ],
+          [
+            "Q1",
+            7.0
+          ],
+          [
+            "Median",
+            12.5
+          ],
+          [
+            "Q3",
+            18.0
+          ],
+          [
+            "Max",
+            24.0
+          ]
+        ],
+        "title": "Descriptives: x"
+      }
+    ]
+  },
+  "frequencies": {
+    "charts": [
+      {
+        "chart_type": "bar",
+        "data": [
+          {
+            "name": "P",
+            "value": 14.0
+          },
+          {
+            "name": "Q",
+            "value": 10.0
+          }
+        ],
+        "title": "Frequency of cat",
+        "x_label": "cat",
+        "y_label": "Count"
+      }
+    ],
+    "dv_label": "cat",
+    "effect_size_text": "Mode: P (14)",
+    "effect_sizes": {},
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "",
+    "method_family": "descriptive",
+    "method_name": "frequencies",
+    "misc": {
+      "category_summary": "P (n=14, 58.3%), Q (n=10, 41.7%)",
+      "mode_category": "P",
+      "mode_count": 14,
+      "mode_pct": 58.3,
+      "n": 24,
+      "n_categories": 2
+    },
+    "n_samples": 24,
+    "sig_text": "N=24, 2 categories",
+    "statistics": {
+      "n_categories": 2,
+      "n_missing": 0,
+      "n_total": 24,
+      "n_valid": 24
+    },
+    "tables": [
+      {
+        "columns": [
+          "Category",
+          "n",
+          "%"
+        ],
+        "rows": [
+          [
+            "P",
+            14,
+            58.3
+          ],
+          [
+            "Q",
+            10,
+            41.7
+          ]
+        ],
+        "title": "Frequency: cat"
+      }
+    ]
+  },
+  "independent_ttest": {
+    "charts": [
+      {
+        "chart_type": "box",
+        "data": [
+          {
+            "max": 12.0,
+            "mean": 6.5,
+            "median": 7.0,
+            "min": 1.0,
+            "name": "A",
+            "outliers": [],
+            "q1": 4.0,
+            "q3": 10.0,
+            "sd": 3.6056,
+            "whisker_high": 12.0,
+            "whisker_low": 1.0
+          },
+          {
+            "max": 24.0,
+            "mean": 18.5,
+            "median": 19.0,
+            "min": 13.0,
+            "name": "B",
+            "outliers": [],
+            "q1": 16.0,
+            "q3": 22.0,
+            "sd": 3.6056,
+            "whisker_high": 24.0,
+            "whisker_low": 13.0
+          }
+        ],
+        "title": "x by g2",
+        "x_label": "g2",
+        "y_label": "x"
+      },
+      {
+        "chart_type": "grouped_bar",
+        "data": [
+          "A",
+          "B"
+        ],
+        "series": [
+          {
+            "data": [
+              6.5,
+              18.5
+            ],
+            "name": "Mean"
+          },
+          {
+            "data": [
+              3.61,
+              3.61
+            ],
+            "name": "SD"
+          }
+        ],
+        "title": "Mean x by g2",
+        "x_label": "g2",
+        "y_label": "x"
+      }
+    ],
+    "dv_label": "x",
+    "effect_size_text": "Cohen's d=3.328",
+    "effect_sizes": {
+      "cohens_d": 3.328201177351375
+    },
+    "errors": [],
+    "group_labels": [
+      "A",
+      "B"
+    ],
+    "iv_label": "g2",
+    "method_family": "comparison",
+    "method_name": "independent_ttest",
+    "misc": {
+      "means": [
+        6.5,
+        18.5
+      ],
+      "ns": [
+        12,
+        12
+      ],
+      "sds": [
+        3.605551275463989,
+        3.605551275463989
+      ]
+    },
+    "n_samples": 24,
+    "sig_text": "t(22)=-8.152, p < .001",
+    "statistics": {
+      "df": 22,
+      "mean1": 6.5,
+      "mean2": 18.5,
+      "n1": 12,
+      "n2": 12,
+      "p_value": 4.3094806491968886e-08,
+      "sd1": 3.605551275463989,
+      "sd2": 3.605551275463989,
+      "t_stat": -8.152394645841092
+    },
+    "tables": [
+      {
+        "columns": [
+          "Group",
+          "N",
+          "Mean",
+          "SD"
+        ],
+        "rows": [
+          [
+            "A",
+            12,
+            6.5,
+            3.61
+          ],
+          [
+            "B",
+            12,
+            18.5,
+            3.61
+          ]
+        ],
+        "title": "t-test: x"
+      }
+    ]
+  },
+  "kruskal_wallis": {
+    "charts": [
+      {
+        "chart_type": "box",
+        "data": [
+          {
+            "max": 22.0,
+            "mean": 11.5,
+            "median": 13.0,
+            "min": 1.0,
+            "name": "A",
+            "outliers": [],
+            "q1": 7.0,
+            "q3": 19.0,
+            "sd": 7.3485,
+            "whisker_high": 22.0,
+            "whisker_low": 1.0
+          },
+          {
+            "max": 23.0,
+            "mean": 12.5,
+            "median": 14.0,
+            "min": 2.0,
+            "name": "B",
+            "outliers": [],
+            "q1": 8.0,
+            "q3": 20.0,
+            "sd": 7.3485,
+            "whisker_high": 23.0,
+            "whisker_low": 2.0
+          },
+          {
+            "max": 24.0,
+            "mean": 13.5,
+            "median": 15.0,
+            "min": 3.0,
+            "name": "C",
+            "outliers": [],
+            "q1": 9.0,
+            "q3": 21.0,
+            "sd": 7.3485,
+            "whisker_high": 24.0,
+            "whisker_low": 3.0
+          }
+        ],
+        "title": "x by g3",
+        "x_label": "g3",
+        "y_label": "x"
+      }
+    ],
+    "dv_label": "x",
+    "effect_size_text": "",
+    "effect_sizes": {},
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "g3",
+    "method_family": "comparison",
+    "method_name": "kruskal_wallis",
+    "misc": {
+      "n_groups": 3
+    },
+    "n_samples": 24,
+    "sig_text": "H(2)=0.320, p = 0.852",
+    "statistics": {
+      "h_stat": 0.3200000000000074,
+      "n_groups": 3,
+      "p_value": 0.8521437889662082
+    },
+    "tables": []
+  },
+  "linear_regression": {
+    "charts": [
+      {
+        "chart_type": "scatter_with_line",
+        "ci_lower": [
+          2.4731,
+          4.5815,
+          6.6879,
+          8.7918,
+          10.8927,
+          12.9898,
+          15.0824,
+          17.1691,
+          19.2488,
+          21.32,
+          23.3813,
+          25.4314,
+          27.4698,
+          29.4963,
+          31.5117,
+          33.5172,
+          35.5142,
+          37.5042,
+          39.4884,
+          41.4679,
+          43.4437,
+          45.4165,
+          47.3868,
+          49.3551
+        ],
+        "ci_upper": [
+          4.6949,
+          6.6632,
+          8.6335,
+          10.6063,
+          12.5821,
+          14.5616,
+          16.5458,
+          18.5358,
+          20.5328,
+          22.5383,
+          24.5537,
+          26.5802,
+          28.6186,
+          30.6687,
+          32.73,
+          34.8012,
+          36.8809,
+          38.9676,
+          41.0602,
+          43.1573,
+          45.2582,
+          47.3621,
+          49.4685,
+          51.5769
+        ],
+        "data": [
+          {
+            "x": 1.0,
+            "y": 1.55
+          },
+          {
+            "x": 2.0,
+            "y": 6.4
+          },
+          {
+            "x": 3.0,
+            "y": 7.35
+          },
+          {
+            "x": 4.0,
+            "y": 9.95
+          },
+          {
+            "x": 5.0,
+            "y": 10.9
+          },
+          {
+            "x": 6.0,
+            "y": 15.75
+          },
+          {
+            "x": 7.0,
+            "y": 14.45
+          },
+          {
+            "x": 8.0,
+            "y": 19.3
+          },
+          {
+            "x": 9.0,
+            "y": 20.25
+          },
+          {
+            "x": 10.0,
+            "y": 22.85
+          },
+          {
+            "x": 11.0,
+            "y": 23.8
+          },
+          {
+            "x": 12.0,
+            "y": 28.65
+          },
+          {
+            "x": 13.0,
+            "y": 27.35
+          },
+          {
+            "x": 14.0,
+            "y": 28.3
+          },
+          {
+            "x": 15.0,
+            "y": 33.15
+          },
+          {
+            "x": 16.0,
+            "y": 31.85
+          },
+          {
+            "x": 17.0,
+            "y": 36.7
+          },
+          {
+            "x": 18.0,
+            "y": 37.65
+          },
+          {
+            "x": 19.0,
+            "y": 40.25
+          },
+          {
+            "x": 20.0,
+            "y": 41.2
+          },
+          {
+            "x": 21.0,
+            "y": 46.05
+          },
+          {
+            "x": 22.0,
+            "y": 44.75
+          },
+          {
+            "x": 23.0,
+            "y": 49.6
+          },
+          {
+            "x": 24.0,
+            "y": 50.55
+          }
+        ],
+        "line": [
+          {
+            "x": 1.0,
+            "y": 3.584
+          },
+          {
+            "x": 2.0,
+            "y": 5.6223
+          },
+          {
+            "x": 3.0,
+            "y": 7.6607
+          },
+          {
+            "x": 4.0,
+            "y": 9.699
+          },
+          {
+            "x": 5.0,
+            "y": 11.7374
+          },
+          {
+            "x": 6.0,
+            "y": 13.7757
+          },
+          {
+            "x": 7.0,
+            "y": 15.8141
+          },
+          {
+            "x": 8.0,
+            "y": 17.8524
+          },
+          {
+            "x": 9.0,
+            "y": 19.8908
+          },
+          {
+            "x": 10.0,
+            "y": 21.9291
+          },
+          {
+            "x": 11.0,
+            "y": 23.9675
+          },
+          {
+            "x": 12.0,
+            "y": 26.0058
+          },
+          {
+            "x": 13.0,
+            "y": 28.0442
+          },
+          {
+            "x": 14.0,
+            "y": 30.0825
+          },
+          {
+            "x": 15.0,
+            "y": 32.1209
+          },
+          {
+            "x": 16.0,
+            "y": 34.1592
+          },
+          {
+            "x": 17.0,
+            "y": 36.1976
+          },
+          {
+            "x": 18.0,
+            "y": 38.2359
+          },
+          {
+            "x": 19.0,
+            "y": 40.2743
+          },
+          {
+            "x": 20.0,
+            "y": 42.3126
+          },
+          {
+            "x": 21.0,
+            "y": 44.351
+          },
+          {
+            "x": 22.0,
+            "y": 46.3893
+          },
+          {
+            "x": 23.0,
+            "y": 48.4277
+          },
+          {
+            "x": 24.0,
+            "y": 50.466
+          }
+        ],
+        "title": "y vs x",
+        "x_label": "x",
+        "y_label": "y"
+      }
+    ],
+    "dv_label": "y",
+    "effect_size_text": "R2=0.992 (99.2% of variance explained)",
+    "effect_sizes": {
+      "r_squared": 0.9916374758618157
+    },
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "x",
+    "method_family": "regression",
+    "method_name": "linear_regression",
+    "misc": {
+      "coefficient_table": "",
+      "df_model": 1,
+      "df_residual": 22,
+      "f_stat": 2608.784633499031,
+      "predictor_list": "x",
+      "r_squared": 0.9916374758618157,
+      "r_squared_adj": 0.9912573611282619,
+      "r_squared_pct": 99.16374758618157
+    },
+    "n_samples": 24,
+    "sig_text": "F(1,22)=2608.78, p < .001",
+    "statistics": {
+      "df_model": 1,
+      "df_residual": 22,
+      "f_stat": 2608.784633499031,
+      "n": 24,
+      "p_value": 2.361443366380888e-24,
+      "r_squared": 0.9916374758618157,
+      "r_squared_adj": 0.9912573611282619
+    },
+    "tables": [
+      {
+        "columns": [
+          "Predictor",
+          "B",
+          "SE",
+          "t",
+          "p"
+        ],
+        "rows": [
+          [
+            "(Intercept)",
+            1.5457,
+            0.5702,
+            "t=2.71",
+            "p = 0.013"
+          ],
+          [
+            "x",
+            2.0383,
+            0.0399,
+            "t=51.08",
+            "p < .001"
+          ]
+        ],
+        "title": "Regression Coefficients"
+      }
+    ]
+  },
+  "linear_regression_categorical": {
+    "charts": [
+      {
+        "chart_type": "box",
+        "data": [
+          {
+            "max": 28.65,
+            "mean": 15.1,
+            "median": 15.75,
+            "min": 1.55,
+            "name": "A",
+            "outliers": [],
+            "q1": 9.95,
+            "q3": 22.85,
+            "sd": 8.1346,
+            "whisker_high": 28.65,
+            "whisker_low": 1.55
+          },
+          {
+            "max": 50.55,
+            "mean": 38.95,
+            "median": 40.25,
+            "min": 27.35,
+            "name": "B",
+            "outliers": [],
+            "q1": 33.15,
+            "q3": 46.05,
+            "sd": 7.8484,
+            "whisker_high": 50.55,
+            "whisker_low": 27.35
+          }
+        ],
+        "title": "y by g2",
+        "x_label": "g2",
+        "y_label": "y"
+      }
+    ],
+    "dv_label": "y",
+    "effect_size_text": "R2=0.708 (70.8% of variance explained)",
+    "effect_sizes": {
+      "r_squared": 0.7083151304845918
+    },
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "g2",
+    "method_family": "regression",
+    "method_name": "linear_regression",
+    "misc": {
+      "coefficient_table": "",
+      "df_model": 1,
+      "df_residual": 22,
+      "f_stat": 53.42386424276922,
+      "predictor_list": "g2 [B]",
+      "r_squared": 0.7083151304845918,
+      "r_squared_adj": 0.6950567273248005,
+      "r_squared_pct": 70.83151304845919
+    },
+    "n_samples": 24,
+    "sig_text": "F(1,22)=53.42, p < .001",
+    "statistics": {
+      "df_model": 1,
+      "df_residual": 22,
+      "f_stat": 53.42386424276922,
+      "n": 24,
+      "p_value": 2.5559618790644804e-07,
+      "r_squared": 0.7083151304845918,
+      "r_squared_adj": 0.6950567273248005
+    },
+    "tables": [
+      {
+        "columns": [
+          "Predictor",
+          "B",
+          "SE",
+          "t",
+          "p"
+        ],
+        "rows": [
+          [
+            "(Intercept)",
+            15.1,
+            2.3073,
+            "t=6.54",
+            "p < .001"
+          ],
+          [
+            "g2 [B]",
+            23.85,
+            3.263,
+            "t=7.31",
+            "p < .001"
+          ]
+        ],
+        "title": "Regression Coefficients"
+      }
+    ]
+  },
+  "linear_regression_mixed": {
+    "charts": [
+      {
+        "chart_type": "scatter_with_line",
+        "data": [
+          {
+            "x": 3.0442,
+            "y": 1.55
+          },
+          {
+            "x": 5.2362,
+            "y": 6.4
+          },
+          {
+            "x": 7.4281,
+            "y": 7.35
+          },
+          {
+            "x": 9.6201,
+            "y": 9.95
+          },
+          {
+            "x": 11.8121,
+            "y": 10.9
+          },
+          {
+            "x": 14.004,
+            "y": 15.75
+          },
+          {
+            "x": 16.196,
+            "y": 14.45
+          },
+          {
+            "x": 18.3879,
+            "y": 19.3
+          },
+          {
+            "x": 20.5799,
+            "y": 20.25
+          },
+          {
+            "x": 22.7719,
+            "y": 22.85
+          },
+          {
+            "x": 24.9638,
+            "y": 23.8
+          },
+          {
+            "x": 27.1558,
+            "y": 28.65
+          },
+          {
+            "x": 26.8942,
+            "y": 27.35
+          },
+          {
+            "x": 29.0862,
+            "y": 28.3
+          },
+          {
+            "x": 31.2781,
+            "y": 33.15
+          },
+          {
+            "x": 33.4701,
+            "y": 31.85
+          },
+          {
+            "x": 35.6621,
+            "y": 36.7
+          },
+          {
+            "x": 37.854,
+            "y": 37.65
+          },
+          {
+            "x": 40.046,
+            "y": 40.25
+          },
+          {
+            "x": 42.2379,
+            "y": 41.2
+          },
+          {
+            "x": 44.4299,
+            "y": 46.05
+          },
+          {
+            "x": 46.6219,
+            "y": 44.75
+          },
+          {
+            "x": 48.8138,
+            "y": 49.6
+          },
+          {
+            "x": 51.0058,
+            "y": 50.55
+          }
+        ],
+        "line": [
+          {
+            "x": 1.55,
+            "y": 1.55
+          },
+          {
+            "x": 51.0058,
+            "y": 51.0058
+          }
+        ],
+        "title": "Fitted vs Observed",
+        "x_label": "Fitted value",
+        "y_label": "y"
+      }
+    ],
+    "dv_label": "y",
+    "effect_size_text": "R2=0.994 (99.4% of variance explained)",
+    "effect_sizes": {
+      "r_squared": 0.9935016601005309
+    },
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "g2",
+    "method_family": "regression",
+    "method_name": "linear_regression",
+    "misc": {
+      "coefficient_table": "",
+      "df_model": 2,
+      "df_residual": 21,
+      "f_stat": 1605.2972901444898,
+      "predictor_list": "g2 [B], x",
+      "r_squared": 0.9935016601005309,
+      "r_squared_adj": 0.9928827705862957,
+      "r_squared_pct": 99.35016601005309
+    },
+    "n_samples": 24,
+    "sig_text": "F(2,21)=1605.30, p < .001",
+    "statistics": {
+      "df_model": 2,
+      "df_residual": 21,
+      "f_stat": 1605.2972901444898,
+      "n": 24,
+      "p_value": 1.082493876048083e-23,
+      "r_squared": 0.9935016601005309,
+      "r_squared_adj": 0.9928827705862957
+    },
+    "tables": [
+      {
+        "columns": [
+          "Predictor",
+          "B",
+          "SE",
+          "t",
+          "p"
+        ],
+        "rows": [
+          [
+            "(Intercept)",
+            0.8523,
+            0.587,
+            "t=1.45",
+            "p = 0.161"
+          ],
+          [
+            "g2 [B]",
+            -2.4535,
+            0.9996,
+            "t=-2.45",
+            "p = 0.023"
+          ],
+          [
+            "x",
+            2.192,
+            0.0722,
+            "t=30.36",
+            "p < .001"
+          ]
+        ],
+        "title": "Regression Coefficients"
+      }
+    ]
+  },
+  "linear_regression_multi": {
+    "charts": [
+      {
+        "chart_type": "scatter_with_line",
+        "data": [
+          {
+            "x": 2.1078,
+            "y": 1.55
+          },
+          {
+            "x": 6.3248,
+            "y": 6.4
+          },
+          {
+            "x": 6.4412,
+            "y": 7.35
+          },
+          {
+            "x": 10.6582,
+            "y": 9.95
+          },
+          {
+            "x": 10.7747,
+            "y": 10.9
+          },
+          {
+            "x": 14.9916,
+            "y": 15.75
+          },
+          {
+            "x": 15.1081,
+            "y": 14.45
+          },
+          {
+            "x": 19.3251,
+            "y": 19.3
+          },
+          {
+            "x": 19.4415,
+            "y": 20.25
+          },
+          {
+            "x": 23.6585,
+            "y": 22.85
+          },
+          {
+            "x": 23.7749,
+            "y": 23.8
+          },
+          {
+            "x": 27.9919,
+            "y": 28.65
+          },
+          {
+            "x": 28.1084,
+            "y": 27.35
+          },
+          {
+            "x": 28.2248,
+            "y": 28.3
+          },
+          {
+            "x": 32.4418,
+            "y": 33.15
+          },
+          {
+            "x": 32.5582,
+            "y": 31.85
+          },
+          {
+            "x": 36.7752,
+            "y": 36.7
+          },
+          {
+            "x": 36.8916,
+            "y": 37.65
+          },
+          {
+            "x": 41.1086,
+            "y": 40.25
+          },
+          {
+            "x": 41.2251,
+            "y": 41.2
+          },
+          {
+            "x": 45.4421,
+            "y": 46.05
+          },
+          {
+            "x": 45.5585,
+            "y": 44.75
+          },
+          {
+            "x": 49.7755,
+            "y": 49.6
+          },
+          {
+            "x": 49.8919,
+            "y": 50.55
+          }
+        ],
+        "line": [
+          {
+            "x": 1.55,
+            "y": 1.55
+          },
+          {
+            "x": 50.55,
+            "y": 50.55
+          }
+        ],
+        "title": "Fitted vs Observed",
+        "x_label": "Fitted value",
+        "y_label": "y"
+      }
+    ],
+    "dv_label": "y",
+    "effect_size_text": "R2=0.998 (99.8% of variance explained)",
+    "effect_sizes": {
+      "r_squared": 0.9981737775422811
+    },
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "x",
+    "method_family": "regression",
+    "method_name": "linear_regression",
+    "misc": {
+      "coefficient_table": "",
+      "df_model": 2,
+      "df_residual": 21,
+      "f_stat": 5739.073364197546,
+      "predictor_list": "x, x2",
+      "r_squared": 0.9981737775422811,
+      "r_squared_adj": 0.9979998515939269,
+      "r_squared_pct": 99.8173777542281
+    },
+    "n_samples": 24,
+    "sig_text": "F(2,21)=5739.07, p < .001",
+    "statistics": {
+      "df_model": 2,
+      "df_residual": 21,
+      "f_stat": 5739.073364197546,
+      "n": 24,
+      "p_value": 1.763248938711064e-29,
+      "r_squared": 0.9981737775422811,
+      "r_squared_adj": 0.9979998515939269
+    },
+    "tables": [
+      {
+        "columns": [
+          "Predictor",
+          "B",
+          "SE",
+          "t",
+          "p"
+        ],
+        "rows": [
+          [
+            "(Intercept)",
+            -0.2166,
+            0.3402,
+            "t=-0.64",
+            "p = 0.531"
+          ],
+          [
+            "x",
+            2.009,
+            0.0194,
+            "t=103.63",
+            "p < .001"
+          ],
+          [
+            "x2",
+            0.3154,
+            0.0364,
+            "t=8.67",
+            "p < .001"
+          ]
+        ],
+        "title": "Regression Coefficients"
+      }
+    ]
+  },
+  "mann_whitney": {
+    "charts": [
+      {
+        "chart_type": "box",
+        "data": [
+          {
+            "max": 12.0,
+            "mean": 6.5,
+            "median": 7.0,
+            "min": 1.0,
+            "name": "A",
+            "outliers": [],
+            "q1": 4.0,
+            "q3": 10.0,
+            "sd": 3.6056,
+            "whisker_high": 12.0,
+            "whisker_low": 1.0
+          },
+          {
+            "max": 24.0,
+            "mean": 18.5,
+            "median": 19.0,
+            "min": 13.0,
+            "name": "B",
+            "outliers": [],
+            "q1": 16.0,
+            "q3": 22.0,
+            "sd": 3.6056,
+            "whisker_high": 24.0,
+            "whisker_low": 13.0
+          }
+        ],
+        "title": "x by g2",
+        "x_label": "g2",
+        "y_label": "x"
+      }
+    ],
+    "dv_label": "x",
+    "effect_size_text": "",
+    "effect_sizes": {},
+    "errors": [],
+    "group_labels": [
+      "A",
+      "B"
+    ],
+    "iv_label": "g2",
+    "method_family": "comparison",
+    "method_name": "mann_whitney",
+    "misc": {},
+    "n_samples": 24,
+    "sig_text": "U=0.0, p < .001",
+    "statistics": {
+      "n1": 12,
+      "n2": 12,
+      "p_value": 3.6584553538971e-05,
+      "u_stat": 0.0
+    },
+    "tables": []
+  },
+  "oneway_anova": {
+    "charts": [
+      {
+        "chart_type": "box",
+        "data": [
+          {
+            "max": 22.0,
+            "mean": 11.5,
+            "median": 13.0,
+            "min": 1.0,
+            "name": "A",
+            "outliers": [],
+            "q1": 7.0,
+            "q3": 19.0,
+            "sd": 7.3485,
+            "whisker_high": 22.0,
+            "whisker_low": 1.0
+          },
+          {
+            "max": 23.0,
+            "mean": 12.5,
+            "median": 14.0,
+            "min": 2.0,
+            "name": "B",
+            "outliers": [],
+            "q1": 8.0,
+            "q3": 20.0,
+            "sd": 7.3485,
+            "whisker_high": 23.0,
+            "whisker_low": 2.0
+          },
+          {
+            "max": 24.0,
+            "mean": 13.5,
+            "median": 15.0,
+            "min": 3.0,
+            "name": "C",
+            "outliers": [],
+            "q1": 9.0,
+            "q3": 21.0,
+            "sd": 7.3485,
+            "whisker_high": 24.0,
+            "whisker_low": 3.0
+          }
+        ],
+        "title": "x by g3",
+        "x_label": "g3",
+        "y_label": "x"
+      },
+      {
+        "chart_type": "grouped_bar",
+        "data": [
+          "A",
+          "B",
+          "C"
+        ],
+        "series": [
+          {
+            "data": [
+              11.5,
+              12.5,
+              13.5
+            ],
+            "name": "Mean"
+          },
+          {
+            "data": [
+              7.35,
+              7.35,
+              7.35
+            ],
+            "name": "SD"
+          }
+        ],
+        "title": "Mean x by g3",
+        "x_label": "g3",
+        "y_label": "x"
+      }
+    ],
+    "dv_label": "x",
+    "effect_size_text": "",
+    "effect_sizes": {},
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "g3",
+    "method_family": "comparison",
+    "method_name": "oneway_anova",
+    "misc": {
+      "group_table": "",
+      "n_groups": 3
+    },
+    "n_samples": 24,
+    "sig_text": "F(2,21)=0.148, p = 0.863",
+    "statistics": {
+      "df_between": 2,
+      "df_within": 21,
+      "f_stat": 0.14814814814814814,
+      "n_groups": 3,
+      "p_value": 0.863196655803451
+    },
+    "tables": [
+      {
+        "columns": [
+          "Group",
+          "N",
+          "Mean",
+          "SD"
+        ],
+        "rows": [
+          [
+            "A",
+            8,
+            11.5,
+            7.35
+          ],
+          [
+            "B",
+            8,
+            12.5,
+            7.35
+          ],
+          [
+            "C",
+            8,
+            13.5,
+            7.35
+          ]
+        ],
+        "title": "ANOVA: x"
+      }
+    ]
+  },
+  "pearson_correlation": {
+    "charts": [
+      {
+        "chart_type": "scatter_with_line",
+        "data": [
+          {
+            "x": 1.55,
+            "y": 1.0
+          },
+          {
+            "x": 6.4,
+            "y": 2.0
+          },
+          {
+            "x": 7.35,
+            "y": 3.0
+          },
+          {
+            "x": 9.95,
+            "y": 4.0
+          },
+          {
+            "x": 10.9,
+            "y": 5.0
+          },
+          {
+            "x": 15.75,
+            "y": 6.0
+          },
+          {
+            "x": 14.45,
+            "y": 7.0
+          },
+          {
+            "x": 19.3,
+            "y": 8.0
+          },
+          {
+            "x": 20.25,
+            "y": 9.0
+          },
+          {
+            "x": 22.85,
+            "y": 10.0
+          },
+          {
+            "x": 23.8,
+            "y": 11.0
+          },
+          {
+            "x": 28.65,
+            "y": 12.0
+          },
+          {
+            "x": 27.35,
+            "y": 13.0
+          },
+          {
+            "x": 28.3,
+            "y": 14.0
+          },
+          {
+            "x": 33.15,
+            "y": 15.0
+          },
+          {
+            "x": 31.85,
+            "y": 16.0
+          },
+          {
+            "x": 36.7,
+            "y": 17.0
+          },
+          {
+            "x": 37.65,
+            "y": 18.0
+          },
+          {
+            "x": 40.25,
+            "y": 19.0
+          },
+          {
+            "x": 41.2,
+            "y": 20.0
+          },
+          {
+            "x": 46.05,
+            "y": 21.0
+          },
+          {
+            "x": 44.75,
+            "y": 22.0
+          },
+          {
+            "x": 49.6,
+            "y": 23.0
+          },
+          {
+            "x": 50.55,
+            "y": 24.0
+          }
+        ],
+        "line": [
+          {
+            "x": 1.55,
+            "y": 0.1066
+          },
+          {
+            "x": 50.55,
+            "y": 23.9447
+          }
+        ],
+        "title": "y vs x",
+        "x_label": "x",
+        "y_label": "y"
+      }
+    ],
+    "dv_label": "y",
+    "effect_size_text": "strong positive correlation",
+    "effect_sizes": {
+      "r": 0.9958099597121007,
+      "r_squared": 0.9916374758618157
+    },
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "x",
+    "method_family": "correlation",
+    "method_name": "pearson_correlation",
+    "misc": {
+      "df": 22,
+      "direction": "positive",
+      "n": 24,
+      "r": 0.9958099597121007,
+      "strength": "strong"
+    },
+    "n_samples": 24,
+    "sig_text": "r(22)=0.996, p < .001",
+    "statistics": {
+      "df": 22,
+      "n": 24,
+      "p_value": 2.361443366380216e-24,
+      "r": 0.9958099597121007,
+      "r_squared": 0.9916374758618157
+    },
+    "tables": []
+  },
+  "spearman_correlation": {
+    "charts": [
+      {
+        "chart_type": "scatter",
+        "data": [
+          {
+            "x": 1.55,
+            "y": 1.0
+          },
+          {
+            "x": 6.4,
+            "y": 2.0
+          },
+          {
+            "x": 7.35,
+            "y": 3.0
+          },
+          {
+            "x": 9.95,
+            "y": 4.0
+          },
+          {
+            "x": 10.9,
+            "y": 5.0
+          },
+          {
+            "x": 15.75,
+            "y": 6.0
+          },
+          {
+            "x": 14.45,
+            "y": 7.0
+          },
+          {
+            "x": 19.3,
+            "y": 8.0
+          },
+          {
+            "x": 20.25,
+            "y": 9.0
+          },
+          {
+            "x": 22.85,
+            "y": 10.0
+          },
+          {
+            "x": 23.8,
+            "y": 11.0
+          },
+          {
+            "x": 28.65,
+            "y": 12.0
+          },
+          {
+            "x": 27.35,
+            "y": 13.0
+          },
+          {
+            "x": 28.3,
+            "y": 14.0
+          },
+          {
+            "x": 33.15,
+            "y": 15.0
+          },
+          {
+            "x": 31.85,
+            "y": 16.0
+          },
+          {
+            "x": 36.7,
+            "y": 17.0
+          },
+          {
+            "x": 37.65,
+            "y": 18.0
+          },
+          {
+            "x": 40.25,
+            "y": 19.0
+          },
+          {
+            "x": 41.2,
+            "y": 20.0
+          },
+          {
+            "x": 46.05,
+            "y": 21.0
+          },
+          {
+            "x": 44.75,
+            "y": 22.0
+          },
+          {
+            "x": 49.6,
+            "y": 23.0
+          },
+          {
+            "x": 50.55,
+            "y": 24.0
+          }
+        ],
+        "title": "y vs x",
+        "x_label": "x",
+        "y_label": "y"
+      }
+    ],
+    "dv_label": "y",
+    "effect_size_text": "strong positive correlation",
+    "effect_sizes": {
+      "rho": 0.994782608695652
+    },
+    "errors": [],
+    "group_labels": [],
+    "iv_label": "x",
+    "method_family": "correlation",
+    "method_name": "spearman_correlation",
+    "misc": {
+      "direction": "positive",
+      "n": 24,
+      "rho": 0.994782608695652,
+      "strength": "strong"
+    },
+    "n_samples": 24,
+    "sig_text": "rho=0.995, p < .001",
+    "statistics": {
+      "n": 24,
+      "p_value": 2.622501591524753e-23,
+      "rho": 0.994782608695652
+    },
+    "tables": []
+  }
+}
