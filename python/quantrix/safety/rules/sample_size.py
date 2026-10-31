@@ -6,8 +6,6 @@ This rule checks the basics and warns when N is marginal.
 
 from __future__ import annotations
 
-import polars as pl
-
 from quantrix.core.dataset import Dataset
 from quantrix.core.metadata import VariableMetadata
 from quantrix.safety.engine import SafetyRule, SafetyWarning
@@ -83,23 +81,48 @@ class SampleSizeRule(SafetyRule):
                     )
 
         # Chi-square expected frequency check
-        if method_name == "chi_square" and dv is not None and ivs and df is not None and dv.name in df.columns and ivs[0].name in df.columns:
-            crosstab = df.group_by([ivs[0].name, dv.name]).len()
-            small_cells = crosstab.filter(pl.col("len") < 5)
-            if small_cells.height > 0:
-                total_cells = crosstab.height
-                small_pct = small_cells.height / total_cells * 100
-                if small_pct > 20:
+        if (
+            method_name == "chi_square"
+            and dv is not None
+            and ivs
+            and df is not None
+            and dv.name in df.columns
+            and ivs[0].name in df.columns
+        ):
+            iv_name = ivs[0].name
+            valid = df.filter(
+                df[iv_name].is_not_null() & df[dv.name].is_not_null()
+            )
+            n = valid.height
+            if n > 0:
+                row_totals = {
+                    row[0]: int(row[1])
+                    for row in valid.group_by(iv_name).len().rows()
+                }
+                col_totals = {
+                    row[0]: int(row[1])
+                    for row in valid.group_by(dv.name).len().rows()
+                }
+                total_cells = len(row_totals) * len(col_totals)
+                if total_cells > 0:
+                    small_cells = sum(
+                        1
+                        for row_total in row_totals.values()
+                        for col_total in col_totals.values()
+                        if row_total * col_total / n < 5
+                    )
+                    small_pct = small_cells / total_cells * 100
+                    if small_pct > 20:
                         warnings.append(
                             SafetyWarning(
                                 rule_name=self.rule_name,
                                 severity="warning",
                                 message=(
-                                    f"{small_cells.height}/{total_cells} cells "
+                                    f"{small_cells}/{total_cells} cells "
                                     f"({small_pct:.0f}%) have expected frequency < 5."
                                 ),
                                 suggestion="Consider using Fisher's Exact Test or collapsing categories.",
-                                variable_names=[dv.name, ivs[0].name],
+                                variable_names=[dv.name, iv_name],
                             )
                         )
 

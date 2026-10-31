@@ -72,6 +72,36 @@ class TestSampleSizeRule:
         warnings = rule.check("independent_ttest", dv, [iv], ds)
         assert any("below" in w.message for w in warnings)
 
+    def test_chi_square_uses_expected_not_observed_frequencies(self):
+        rule = SampleSizeRule()
+        dv = make_var("cat", VariableType.NOMINAL, n_unique=2)
+        iv = make_var("group", VariableType.NOMINAL, n_unique=2)
+        # Observed cells 3 are below 5, but every expected cell is 16.5.
+        ds = make_dataset(
+            [dv, iv],
+            {
+                "group": ["A"] * 33 + ["B"] * 33,
+                "cat": ["P"] * 30 + ["Q"] * 3 + ["P"] * 3 + ["Q"] * 30,
+            },
+        )
+        warnings = rule.check("chi_square", dv, [iv], ds)
+        assert warnings == []
+
+    def test_chi_square_warns_when_expected_cell_is_small(self):
+        rule = SampleSizeRule()
+        dv = make_var("cat", VariableType.NOMINAL, n_unique=2)
+        iv = make_var("group", VariableType.NOMINAL, n_unique=2)
+        # All observed cells are >= 5, but one expected cell is ~0.95.
+        ds = make_dataset(
+            [dv, iv],
+            {
+                "group": ["A"] * 95 + ["B"] * 10,
+                "cat": ["P"] * 90 + ["Q"] * 5 + ["P"] * 5 + ["Q"] * 5,
+            },
+        )
+        warnings = rule.check("chi_square", dv, [iv], ds)
+        assert any("expected frequency" in w.message for w in warnings)
+
 
 class TestNormalityRule:
     def test_normal_data_passes(self):
@@ -141,6 +171,21 @@ class TestOutlierRule:
         ds = make_dataset([dv], {"x": [1] * 19 + [1000]})
         _ = rule.check("independent_ttest", dv, [], ds)
         assert dv.outlier_count > 0
+
+    def test_categorical_dv_is_not_cast_to_float(self):
+        rule = OutlierRule()
+        dv = make_var("cat", VariableType.NOMINAL, n_unique=2)
+        iv = make_var("group", VariableType.NOMINAL, n_unique=2)
+        ds = make_dataset(
+            [dv, iv],
+            {
+                "cat": ["P", "Q", "P", "Q", "P", "Q"],
+                "group": ["A", "A", "A", "B", "B", "B"],
+            },
+        )
+        warnings = rule.check("chi_square", dv, [iv], ds)
+        assert warnings == []
+        assert dv.outlier_count == 0
 
 
 class TestMultipleComparisonRule:

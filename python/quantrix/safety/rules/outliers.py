@@ -33,6 +33,10 @@ class OutlierRule(SafetyRule):
         df = dataset.data
         if dv is None or df is None or dv.name not in df.columns:
             return warnings
+        if not dv.is_continuous:
+            # IQR outliers are meaningful for continuous measures; categorical
+            # variables must not be cast to float here.
+            return warnings
 
         col: Any = df[dv.name].drop_nulls().cast(pl.Float64)
         if len(col) < 4:
